@@ -153,7 +153,12 @@ export async function GET(req: NextRequest) {
         `https://h5-api.aoneroom.com/wefeed-h5api-bff/subject/search`,
         {
           method: "POST",
-          headers: { ...headers, "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Referer: "https://h5.aoneroom.com/",
+            Origin: "https://h5.aoneroom.com",
+          },
           body: JSON.stringify({
             keyword: title,
             page: 1,
