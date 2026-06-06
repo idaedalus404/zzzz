@@ -17,16 +17,16 @@ export const initialServers: ServerTypes[] = [
     name: "Daedalus II",
     server: "daedalus",
     status: "queue",
+    desc: " Fast & Stable",
+  },
+  {
+    name: "Thanatos III",
+    server: "thanatos",
+    status: "queue",
     desc: " Alternative",
   },
-  // {
-  //   name: "Thanatos III",
-  //   server: "thanatos",
-  //   status: "queue",
-  //   desc: " Alternative",
-  // },
   {
-    name: "Orion III",
+    name: "Orion IV",
     server: "orion",
     status: "queue",
     desc: "Built-In Subtitle",

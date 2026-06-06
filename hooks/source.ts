@@ -174,6 +174,7 @@ async function fetchThanatosSource({
   episode,
   title,
   year,
+  imdbId,
 }: {
   media_type: string;
   tmdbId: string;
@@ -190,14 +191,22 @@ async function fetchThanatosSource({
     year,
     tmdbId,
   });
+
+  if (imdbId) {
+    qs.set("imdbId", imdbId);
+  }
+
   if (media_type === "tv") {
     qs.set("seasonId", String(season));
     qs.set("episodeId", String(episode));
+  } else {
+    // Movies still need episodeId=1 and seasonId=1 per the example URL
+    qs.set("episodeId", "1");
+    qs.set("seasonId", "1");
   }
-  // cdn;
-  // myflixerzupcloud;
+
   const videasyRes = await axios.get(
-    `https://api.videasy.net/cdn/sources-with-title?${qs}`,
+    `https://api.videasy.net/mb-flix/sources-with-title?${qs}`,
     {
       headers: {
         "User-Agent":
