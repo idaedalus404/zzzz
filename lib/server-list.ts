@@ -2,41 +2,41 @@ import { ServerTypes } from "@/types/player-types";
 
 export const initialServers: ServerTypes[] = [
   {
-    name: "Icarus I",
+    name: "Icarus",
     server: "icarus",
     status: "queue",
     desc: "Vast Collection",
   },
   {
-    name: "Atlas II",
+    name: "Atlas",
     server: "atlas_v2",
     status: "queue",
     desc: "Alternative",
   },
   {
-    name: "Athena IV",
-    server: "athena",
+    name: "Thanatos ",
+    server: "thanatos",
     status: "queue",
-    desc: "Main Server",
+    desc: "Alternative",
   },
   {
-    name: "Orion III",
+    name: "Orion",
     server: "orion",
     status: "queue",
     desc: "Built-In Subtitle",
   },
 
-  // {
-  //   name: "Thanatos ",
-  //   server: "thanatos",
-  //   status: "queue",
-  //   desc: "Alternative",
-  // },
   {
-    name: "Daedalus V",
+    name: "Daedalus",
     server: "daedalus",
     status: "queue",
     desc: "Alternative",
+  },
+  {
+    name: "Athena",
+    server: "athena",
+    status: "queue",
+    desc: "Main Server",
   },
 
   // {
