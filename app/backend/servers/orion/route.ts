@@ -158,32 +158,6 @@ export async function GET(req: NextRequest) {
     }
 
     // ─── STEP 2: Pick best quality → resolve embed ────────────────────────────
-    // const bestQuality =
-    //   qualities.find((q) => q.quality === "1080p") ??
-    //   qualities.find((q) => q.quality === "default") ??
-    //   qualities[0];
-
-    // const embedUrl = bestQuality.embed_url;
-
-    // const step2Url = `https://holly-2.${randomWorker()}.workers.dev/?embed_url=${encodeURIComponent(embedUrl)}`;
-
-    // const step2Res = await fetchWithTimeout(step2Url, {}, 6000);
-    // if (!step2Res.ok) {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       error: "Holly step 2 failed",
-    //       status: step2Res.status,
-    //     },
-    //     { status: step2Res.status },
-    //   );
-    // }
-
-    // const step2Data = await step2Res.json();
-    // const sources: Array<{ label: string; type: string; file: string }> =
-    //   step2Data.sources ?? [];
-
-    // ─── STEP 2: Pick best quality → resolve embed ────────────────────────────
     const bestQuality =
       qualities.find((q) => q.quality === "1080p") ??
       qualities.find((q) => q.quality === "default") ??
@@ -191,25 +165,21 @@ export async function GET(req: NextRequest) {
 
     const embedUrl = bestQuality.embed_url;
 
-    let step2Data: any = null;
+    const step2Url = `https://holly-2.${randomWorker()}.workers.dev/?embed_url=${encodeURIComponent(embedUrl)}`;
 
-    for (let attempt = 0; attempt < 15; attempt++) {
-      const step2Url = `https://holly-2.${randomWorker()}.workers.dev/?embed_url=${encodeURIComponent(embedUrl)}`;
-      const res = await fetchWithTimeout(step2Url, {}, 15000).catch(() => null);
-      if (res?.ok) {
-        step2Data = await res.json();
-        break;
-      }
-      await new Promise((r) => setTimeout(r, 1000));
-    }
-
-    if (!step2Data) {
+    const step2Res = await fetchWithTimeout(step2Url, {}, 6000);
+    if (!step2Res.ok) {
       return NextResponse.json(
-        { success: false, error: "Holly step 2 failed after retries" },
-        { status: 502 },
+        {
+          success: false,
+          error: "Holly step 2 failed",
+          status: step2Res.status,
+        },
+        { status: step2Res.status },
       );
     }
 
+    const step2Data = await step2Res.json();
     const sources: Array<{ label: string; type: string; file: string }> =
       step2Data.sources ?? [];
 
