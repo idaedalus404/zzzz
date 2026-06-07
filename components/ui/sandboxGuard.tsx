@@ -1,6 +1,7 @@
 // components/SandboxGuard.jsx
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function SandboxGuard({
@@ -26,14 +27,18 @@ export default function SandboxGuard({
 
   if (isSandboxed) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-center p-8">
-        <h1 className="text-2xl font-bold  mb-3">⚠️ Sandbox Detected</h1>
-        <p className="text-gray-600 mb-2">
+      <div className="flex flex-col items-center justify-center h-screen text-center p-8 bg-black">
+        <TriangleAlert className="lg:size-13 size-10 mb-3 text-yellow-500" />
+        <h1 className="lg:text-2xl text-lg font-bold  mb-3">
+          {" "}
+          Sandbox Detected
+        </h1>
+        <p className="text-muted-foreground mb-2 lg:text-base text-sm">
           This page cannot be embedded inside a sandboxed iframe.
         </p>
-        <p className="text-gray-600">
-          Please remove the{" "}
-          <code className=" text-red-500 px-1.5 py-0.5 rounded text-sm font-medium">
+        <p className="text-muted-foreground lg:text-base text-sm">
+          Please remove or disable the{" "}
+          <code className=" text-red-500 px-1.5 py-0.5 underline font-medium">
             sandbox
           </code>{" "}
           attribute from your iframe, or contact the site owner.
