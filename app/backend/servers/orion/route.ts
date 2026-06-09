@@ -130,7 +130,7 @@ export async function GET(req: NextRequest) {
 
       const step1Url = `https://holly-1.${randomWorker()}.workers.dev/?slug=${encodeURIComponent(hollySlug)}`;
 
-      const step1Res = await fetchWithTimeout(step1Url, {}, 6000);
+      const step1Res = await fetchWithTimeout(step1Url, {}, 15000);
       if (!step1Res.ok) {
         return NextResponse.json(
           {
