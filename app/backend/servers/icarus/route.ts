@@ -274,6 +274,9 @@ export async function GET(req: NextRequest) {
       );
 
     const proxies = [
+      "https://proxy.zxcprime4.workers.dev/",
+      "https://proxy.zxcprime3.workers.dev/",
+      "https://proxy.zxcprime2.workers.dev/",
       "https://proxy.zxcprime1.workers.dev/",
       "https://proxy.zxcprime.workers.dev/",
       "https://proxy.angela-estes-o08.workers.dev/",
