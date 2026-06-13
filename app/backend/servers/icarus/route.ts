@@ -11,50 +11,42 @@ const supabase = createClient(
 );
 
 function getRandomAfricanIP() {
-  // Source: IANA-confirmed AFRINIC allocations only
-  // 41/8, 102/8, 105/8, 197/8 + 45.96-111.x (recovered pool)
   const ranges: [number, number][] = [
-    // 41/8 — Kenya, Nigeria, South Africa, Ghana, Ethiopia
-    [41, 57], // Kenya (Safaricom)
-    [41, 60], // Kenya (Telkom Kenya)
-    [41, 72], // Nigeria (MTN)
-    [41, 73], // Nigeria (Airtel)
-    [41, 116], // South Africa (Vodacom)
-    [41, 138], // South Africa (MTN)
-    [41, 160], // Ghana (MTN Ghana)
-    [41, 175], // Egypt (Telecom Egypt)
-    [41, 188], // Ethiopia (Ethio Telecom)
-    [41, 203], // Ethiopia
-    [41, 215], // Ghana
-    [41, 222], // Tanzania (TTCL)
-    // 102/8 — AFRINIC (allocated Feb 2011, last ever IPv4 block)
-    [102, 0], // Nigeria
-    [102, 22], // South Africa
-    [102, 68], // Nigeria (Airtel)
-    [102, 89], // Nigeria (MTN)
-    [102, 130], // Kenya
-    [102, 164], // South Africa
-    [102, 176], // Egypt
-    [102, 212], // Morocco
-    // 105/8 — AFRINIC
-    [105, 16], // South Africa
-    [105, 48], // Kenya
-    [105, 112], // Nigeria
-    [105, 160], // Egypt
-    [105, 224], // Tanzania
-    // 197/8 — AFRINIC
-    [197, 136], // Morocco
-    [197, 148], // Tunisia
-    [197, 156], // Ghana
-    [197, 210], // Nigeria
-    [197, 232], // Kenya (Safaricom)
-    [197, 248], // South Africa
-    // 45.96-111 — AFRINIC recovered pool
+    [41, 57],
+    [41, 60],
+    [41, 72],
+    [41, 73],
+    [41, 116],
+    [41, 138],
+    [41, 160],
+    [41, 175],
+    [41, 188],
+    [41, 203],
+    [41, 215],
+    [41, 222],
+    [102, 0],
+    [102, 22],
+    [102, 68],
+    [102, 89],
+    [102, 130],
+    [102, 164],
+    [102, 176],
+    [102, 212],
+    [105, 16],
+    [105, 48],
+    [105, 112],
+    [105, 160],
+    [105, 224],
+    [197, 136],
+    [197, 148],
+    [197, 156],
+    [197, 210],
+    [197, 232],
+    [197, 248],
     [45, 96],
     [45, 100],
     [45, 108],
   ];
-
   const base = ranges[Math.floor(Math.random() * ranges.length)];
   const rand = () => Math.floor(Math.random() * 254) + 1;
   return `${base[0]}.${base[1]}.${rand()}.${rand()}`;
@@ -86,16 +78,18 @@ export async function GET(req: NextRequest) {
       `[ICARUS] ${tmdbId}/${mediaType}${extra} | ${status} | ${reason}`,
     );
   };
+
   try {
-    const tmdbId = req.nextUrl.searchParams.get(FIELD_MAP.id); // "mid"
-    const mediaType = req.nextUrl.searchParams.get("b"); // rotate this too if you want
-    const season = req.nextUrl.searchParams.get(FIELD_MAP.season); // "sx"
-    const episode = req.nextUrl.searchParams.get(FIELD_MAP.episode); // "ex"
-    const title = req.nextUrl.searchParams.get(FIELD_MAP.title); // "q"
-    const year = req.nextUrl.searchParams.get(FIELD_MAP.year); // "p"
-    const ts = Number(req.nextUrl.searchParams.get(FIELD_MAP.ts)); // "rt"
-    const token = req.nextUrl.searchParams.get(FIELD_MAP.token)!; // "sig"
-    const f_token = req.nextUrl.searchParams.get(FIELD_MAP.fToken)!; // "xt"
+    const tmdbId = req.nextUrl.searchParams.get(FIELD_MAP.id);
+    const mediaType = req.nextUrl.searchParams.get("b");
+    const season = req.nextUrl.searchParams.get(FIELD_MAP.season);
+    const episode = req.nextUrl.searchParams.get(FIELD_MAP.episode);
+    const title = req.nextUrl.searchParams.get(FIELD_MAP.title);
+    const year = req.nextUrl.searchParams.get(FIELD_MAP.year);
+    const ts = Number(req.nextUrl.searchParams.get(FIELD_MAP.ts));
+    const token = req.nextUrl.searchParams.get(FIELD_MAP.token)!;
+    const f_token = req.nextUrl.searchParams.get(FIELD_MAP.fToken)!;
+    const dubLang = req.nextUrl.searchParams.get("dub"); // e.g. "hi", "es", "fr"
 
     if (!tmdbId || !mediaType || !title || !year || !ts || !token) {
       logRequest(404, "missing params");
@@ -145,19 +139,17 @@ export async function GET(req: NextRequest) {
     };
 
     // -------- Cache Lookup --------
-    let subjectId: string;
-    let detailPath: string;
+    let dubs: any[];
 
     const { data: cached } = await supabase
       .from("moviebox_cache")
-      .select("subject_id, detail_path")
+      .select("dubs")
       .eq("tmdb_id", tmdbId)
       .eq("media_type", mediaType)
       .maybeSingle();
 
     if (cached) {
-      subjectId = cached.subject_id;
-      detailPath = cached.detail_path;
+      dubs = cached.dubs ?? [];
     } else {
       // Search
       const searchRes = await fetchWithTimeout(
@@ -171,7 +163,7 @@ export async function GET(req: NextRequest) {
             Origin: "https://h5.aoneroom.com",
           },
           body: JSON.stringify({
-            keyword: title,
+            keyword: `${title}`,
             page: 1,
             perPage: 24,
             subjectType: mediaType === "tv" ? 2 : 1,
@@ -190,16 +182,14 @@ export async function GET(req: NextRequest) {
           { status: 404 },
         );
       }
-      // console.log(title);
-      // console.log(items);
 
       const normalizedTitle = title?.toLowerCase().trim();
-
+      const LANG_TAGS =
+        /\[(tagalog|hindi|dubbed|multi|spanish|french|arabic|korean|japanese|tamil|telugu)\]/i;
       const selectedItem = items.find((item: any) => {
         const itemTitle = item.title?.toLowerCase() || "";
         const itemYear = item.releaseDate?.slice(0, 4);
-        console.log(itemTitle);
-        console.log(itemYear);
+        if (LANG_TAGS.test(itemTitle)) return false;
         return itemTitle.includes(normalizedTitle!) && itemYear === year;
       });
 
@@ -210,6 +200,7 @@ export async function GET(req: NextRequest) {
           { status: 404 },
         );
       }
+
       const rawSubjectId = selectedItem?.subjectId;
       if (!rawSubjectId) {
         logRequest(404, "subjectId not found");
@@ -219,16 +210,13 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      subjectId = String(rawSubjectId);
-
-      // Detail
+      // Detail — use the selected item's detailPath
       const detailRes = await fetchWithTimeout(
-        `${baseUrl}/wefeed-h5-bff/web/subject/detail?subjectId=${encodeURIComponent(subjectId)}`,
+        `https://h5-api.aoneroom.com/wefeed-h5api-bff/detail?detailPath=${selectedItem.detailPath}`,
         {
           headers: {
             ...headers,
-            Referer:
-              "https://fmoviesunblocked.net/spa/videoPlayPage/movies/the-housemaid-0salyuvbRw2?id=2123398053372510440&type=/movie/detail",
+            Referer: `https://fmoviesunblocked.net/spa/videoPlayPage/movies/${selectedItem.detailPath}?id=${rawSubjectId}&type=/movie/detail`,
             Origin: "https://fmoviesunblocked.net",
           },
         },
@@ -236,22 +224,39 @@ export async function GET(req: NextRequest) {
       );
       const detailJson = await detailRes.json();
       const info = detailJson?.data?.data || detailJson?.data || detailJson;
-      detailPath = info?.subject?.detailPath || "";
+
+      dubs = info?.subject?.dubs || [];
 
       // Save to cache
-      await supabase.from("moviebox_cache").upsert(
-        {
-          tmdb_id: tmdbId,
-          media_type: mediaType,
-          subject_id: subjectId,
-          detail_path: detailPath,
-          year,
-        },
-        {
-          onConflict: "tmdb_id,media_type",
-          ignoreDuplicates: true,
-        },
+      await supabase
+        .from("moviebox_cache")
+        .upsert(
+          { tmdb_id: tmdbId, media_type: mediaType, dubs, year },
+          { onConflict: "tmdb_id,media_type", ignoreDuplicates: true },
+        );
+    }
+
+    // -------- Resolve active subjectId/detailPath from dubs --------
+    const original = dubs.find((d: any) => d.original === true);
+    if (!original) {
+      logRequest(404, "no original dub entry");
+      return NextResponse.json(
+        { success: false, error: "No original entry in dubs" },
+        { status: 404 },
       );
+    }
+
+    let subjectId: string = original.subjectId;
+    let detailPath: string = original.detailPath;
+
+    if (dubLang) {
+      const dubEntry = dubs.find(
+        (d: any) => d.type === 0 && d.lanCode === dubLang,
+      );
+      if (dubEntry) {
+        subjectId = dubEntry.subjectId;
+        detailPath = dubEntry.detailPath;
+      }
     }
 
     // -------- Download Sources (always fresh) --------
@@ -273,9 +278,6 @@ export async function GET(req: NextRequest) {
       8000,
     );
 
-    // console.log("detailPath", detailPath);
-    // console.log("subjectId", subjectId);
-
     const sourcesJson = await sourcesRes.json();
     const sources = sourcesJson?.data?.data || sourcesJson?.data || sourcesJson;
     const downloads = sources?.downloads || [];
@@ -286,6 +288,7 @@ export async function GET(req: NextRequest) {
         { status: 404 },
       );
     }
+
     const sortedDownloads = downloads
       .filter((d: any) => d?.url && typeof d.url === "string")
       .sort((a: any, b: any) => (b.resolution || 0) - (a.resolution || 0));
@@ -331,8 +334,6 @@ export async function GET(req: NextRequest) {
       "https://damp-bird-f3a9.jerometecsonn.workers.dev/",
       "https://damp-bonus-5625.mosangfour.workers.dev/",
       "https://still-butterfly-9b3e.zxcprime360.workers.dev/",
-
-      //current  = 28 goal =35 need = 7
     ];
 
     const shuffledProxies = [...proxies].sort(() => Math.random() - 0.5);
@@ -361,11 +362,19 @@ export async function GET(req: NextRequest) {
       display: c.lanName,
       file: c.url,
     }));
+
     logRequest(200, "OK!!!!!");
     return NextResponse.json({
       success: true,
       links,
       subtitles,
+      dubs: dubs
+        .filter((d: any) => d.type === 0)
+        .map((d: any) => ({
+          lang: d.lanCode,
+          name: d.lanName,
+          subjectId: d.subjectId,
+        })),
       meow: !!cached,
     });
   } catch (err: any) {
