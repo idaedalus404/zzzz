@@ -190,21 +190,31 @@ export async function GET(req: NextRequest) {
           { status: 404 },
         );
       }
-      console.log(items);
+      // console.log(items);
+
       const n = (s: string) => s.toLowerCase().trim();
 
       const selectedItem =
+        // 1. Exact title + year + no dub
         items.find(
           (i: any) =>
             i?.releaseDate?.startsWith(year) &&
             n(i?.title || "") === n(title) &&
             !(i?.title || "").includes("["),
         ) ||
+        // 2. Exact title + year, allow dubs
         items.find(
           (i: any) =>
-            i?.releaseDate?.startsWith(year) && !(i?.title || "").includes("["),
+            i?.releaseDate?.startsWith(year) && n(i?.title || "") === n(title),
         ) ||
-        items.find((i: any) => i?.releaseDate?.startsWith(year));
+        // 3. Title match only, no dub (year mismatch fallback)
+        items.find(
+          (i: any) =>
+            n(i?.title || "") === n(title) && !(i?.title || "").includes("["),
+        ) ||
+        // 4. Title match only, allow dubs
+        items.find((i: any) => n(i?.title || "") === n(title));
+
       if (!selectedItem) {
         logRequest(404, "unavailable");
         return NextResponse.json(
