@@ -175,6 +175,8 @@ export async function GET(req: NextRequest) {
       const searchJson = await searchRes.json();
       const results = searchJson?.data?.data || searchJson?.data || searchJson;
       const items = results?.items || [];
+      console.log(title, year);
+      console.log("zzz", items);
       if (!items.length) {
         logRequest(404, "no search results");
         return NextResponse.json(
@@ -183,16 +185,21 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      const normalizedTitle = title?.toLowerCase().trim();
+      const normalizedTitle = title?.toLowerCase().trim().replace(/-/g, " ");
       const LANG_TAGS =
         /\[(tagalog|hindi|dubbed|multi|spanish|french|arabic|korean|japanese|tamil|telugu)\]/i;
+
+      const queryWords = normalizedTitle!.split(/\s+/).filter(Boolean);
+
       const selectedItem = items.find((item: any) => {
-        const itemTitle = item.title?.toLowerCase() || "";
+        const itemTitle = item.title?.toLowerCase().replace(/-/g, " ") || "";
         const itemYear = item.releaseDate?.slice(0, 4);
         if (LANG_TAGS.test(itemTitle)) return false;
-        return itemTitle.includes(normalizedTitle!) && itemYear === year;
-      });
+        if (itemYear !== year) return false;
 
+        // Every word in the query must appear in the item title
+        return queryWords.every((word) => itemTitle.includes(word));
+      });
       if (!selectedItem) {
         logRequest(404, "unavailable");
         return NextResponse.json(
