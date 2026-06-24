@@ -39,6 +39,12 @@ export const initialServers: ServerTypes[] = [
     status: "queue",
     desc: "Main Server & Multi Audio Support",
   },
+  {
+    name: "Kratos",
+    server: "kratos",
+    status: "queue",
+    desc: "-",
+  },
 
   // {
   //   name: "Daedalus V",

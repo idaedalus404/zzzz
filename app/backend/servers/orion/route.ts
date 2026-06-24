@@ -234,8 +234,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_HOLLY_SUPABASE_URL_HOLLY!,
   process.env.HOLLY_SUPABASE_SERVICE_ROLE_KEY_HOLLY!,
 );
-
+//https://holly-1.test11-a1b.workers.dev/
+//https://holly-1.test12-3d3.workers.dev/
+//https://holly-1.test13-ab8.workers.dev/
 const HOLLY_WORKERS = [
+  "test13-ab8",
+  "test12-3d3",
+  "test11-a1b",
   "test5-9ab",
   "test7-337",
   "test6-cb9",
