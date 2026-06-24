@@ -126,6 +126,7 @@ export default function Player() {
   const { data: metadata, isError: metadataError } = useTmdbDetails(
     media_type,
     tmdbId,
+    language,
   );
 
   const imdbId = metadata?.imdb_id || null;

@@ -5,8 +5,10 @@ export async function GET(
   { params }: { params: Promise<{ media_type: string; id: string }> },
 ) {
   const { media_type, id } = await params;
+  const { searchParams } = new URL(req.url);
+  const language = searchParams.get("language") || "en-US";
 
-  const url = `https://api.themoviedb.org/3/${media_type}/${id}?api_key=47a1a7df542d3d483227f758a7317dff&append_to_response=videos,credits,images,external_ids`;
+  const url = `https://api.themoviedb.org/3/${media_type}/${id}?api_key=47a1a7df542d3d483227f758a7317dff&language=${encodeURIComponent(language)}&append_to_response=videos,credits,images,external_ids`;
 
   const res = await fetch(url);
 
