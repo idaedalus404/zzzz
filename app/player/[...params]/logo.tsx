@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 
 export default function LoadingMetadata({ logo }: { logo: string }) {
@@ -12,7 +11,7 @@ export default function LoadingMetadata({ logo }: { logo: string }) {
     >
       <div className="absolute left-[5%] -translate-x-[5%] sm:bottom-[10%] top-[50%] lg:top-[unset] sm:-translate-y-[10%] -translate-y-[50%]   spect-video   flex justify-center items-center ">
         <img
-          className="object-contain a object-left lg:max-w-md max-w-sm max-h-30 lg:max-h-50 drop-shadow-sm"
+          className="object-contain a object-left lg:max-w-md max-w-sm max-h-30 lg:max-h-50 drop-shadow-sm animate-pulse"
           src={`https://image.tmdb.org/t/p/w780/${logo}`}
           alt=""
         />

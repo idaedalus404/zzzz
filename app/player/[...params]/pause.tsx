@@ -1,6 +1,7 @@
 import { TmdbDetailsResponse } from "@/hooks/tmdb-types";
 import { MovieTypes } from "@/types/types";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export default function Pause({
   metadata,
@@ -15,29 +16,67 @@ export default function Pause({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 bg-black/60 z-10 overflow-hidden pointer-events-none"
+      className={cn(
+        "fixed inset-0 z-10",
+        "bg-black/60",
+        "overflow-hidden pointer-events-none",
+        "flex items-end justify-end gap-10 flex-col lg:p-30 md:p-20 p-4",
+      )}
     >
-      <div className="absolute left-[5%] -translate-x-[5%] sm:bottom-[10%] top-[50%] lg:top-[unset] sm:-translate-y-[10%] -translate-y-[50%] sm:max-w-3xl max-w-lg w-full p-4  max-[340px]:p-1  max-[340px]:max-w-[70%]">
-        <h3 className="lg:text-xl text-muted-foreground font-medium text-sm  max-[340px]:text-[0.6rem]">
-          You're watching
-        </h3>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl  max-[340px]:text-lg font-bold text-white mt-1  max-[340px]:mt-0 ">
-          { metadata.title}
-        </h1>
-        <h1 className="lg:text-xl md:text-lg  max-[340px]:text-xs font-semibold lg:mt-4 mt-2  max-[340px]:mt-0.5 italic">
-          {metadata.tagline}
-        </h1>
+      <div className="w-full flex flex-col gap-12">
+        <div className=" max-w-3xl ">
+          <div className={cn()}>
+            <h3
+              className={cn(
+                "md:text-lg text-sm landscape:text-[0.6rem]",
+                "text-gray-400 font-medium",
+              )}
+            >
+              You're watching
+            </h3>
+            <h1
+              className={cn(
+                "text-2xl md:text-3xl lg:text-5xl landscape:text-lg",
+                "font-bold text-white",
+                "mt-1 landscape:mt-0",
+              )}
+            >
+              {metadata.title} ({metadata.release_date?.slice(0, 4)})
+            </h1>
+            <h1
+              className={cn(
+                "lg:text-xl md:text-lg landscape:text-xs",
+                "font-semibold italic",
+                "lg:mt-4 mt-2 landscape:mt-0.5",
+              )}
+            >
+              {metadata.tagline}
+            </h1>
 
-        <div
-          className="lg:w-32 w-22 max-[340px]:w-15 lg:h-0.5 h-px  mt-4  max-[340px]:mt-1.5"
-          style={{ backgroundColor: `#${color}` }}
-        ></div>
-        <p className="lg:mt-8 mt-4  max-[340px]:mt-1.5 lg:text-xl md:text-lg sm:text-base text-sm   max-[340px]:text-[0.6rem] text-muted-foreground line-clamp-3">
-          {metadata.overview}
-        </p>
-      </div>
-      <div className="absolute lg:right-[5%] -translate-x-[5%] lg:bottom-[10%] bottom-0 right-0 lg:top-[unset] lg:-translate-y-[10%]  p-4   max-[340px]:text-xs  max-[340px]:p-2">
-        <h1 className="lg:text-xl ">Paused</h1>
+            <div
+              className={cn(
+                "lg:w-32 w-22 landscape:w-15",
+                "lg:h-0.5 h-px",
+                "mt-4 landscape:mt-1.5",
+              )}
+              style={{ backgroundColor: `#${color}` }}
+            />
+            <p
+              className={cn(
+                "text-sm md:text-base lg:text-xl landscape:text-[0.6rem]",
+                "text-gray-400",
+                "lg:mt-8 mt-4 landscape:mt-1.5",
+                "line-clamp-3",
+              )}
+            >
+              {metadata.overview}
+            </p>
+          </div>
+        </div>
+
+        <div className={cn(" text-sm md:text-base")}>
+          <h1 className="lg:text-lg">Paused</h1>
+        </div>
       </div>
     </motion.div>
   );
