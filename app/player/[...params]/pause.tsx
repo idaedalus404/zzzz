@@ -18,7 +18,7 @@ export default function Pause({
       transition={{ duration: 0.3 }}
       className={cn(
         "fixed inset-0 z-10",
-        "bg-black/60",
+        "bg-black/80",
         "overflow-hidden pointer-events-none",
         "flex items-end justify-end  flex-col lg:p-20 md:p-10 p-4",
       )}

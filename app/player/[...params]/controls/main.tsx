@@ -147,7 +147,7 @@ export default function MainControls({
         "z-10 absolute inset-0",
         "flex flex-col justify-between",
         "pointer-events-none",
-        "bg-linear-to-t from-black/80 via-transparent to-black/50",
+        "bg-linear-to-t from-black/90 via-transparent to-black/50",
       )}
       onPointerMove={lockTimer}
     >
@@ -428,7 +428,7 @@ export default function MainControls({
               {media_type === "tv" && canNext && (
                 <Link
                   className={cn(
-                    "cursor-pointer text-muted-foreground",
+                    "cursor-pointer text-muted-foreground hover:text-foreground transition duration-200",
                     "hidden lg:block",
                   )}
                   href={`/player/tv/${tmdbId}/${nextSeason}/${nextEpisode}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
