@@ -252,12 +252,12 @@ export default function MainControls({
             </div>
           </div>
 
-          <SkipSegment
+          {/* <SkipSegment
             currentTime={state.currentTime}
             intro={introData?.intro}
             outro={introData?.outro}
             onSkip={controls.skipTo}
-          />
+          /> */}
         </div>
 
         <div

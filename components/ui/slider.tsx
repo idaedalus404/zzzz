@@ -42,7 +42,7 @@ function Slider({
       min={min}
       max={max}
       className={cn(
-        "data-vertical:min-h-40 relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:w-auto data-vertical:flex-col cursor-pointer",
+        "data-vertical:min-h-40 relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:w-auto data-vertical:flex-col cursor-pointer ",
         className,
       )}
       {...props}
@@ -60,7 +60,7 @@ function Slider({
 
       {intro && max > 0 && (
         <div
-          className="absolute h-full  pointer-events-none"
+          className="absolute h-full rounded-full  pointer-events-none"
           style={{
             left: `${(intro.start_sec / max) * 100}%`,
             width: `${((intro.end_sec - intro.start_sec) / max) * 100}%`,
@@ -71,7 +71,7 @@ function Slider({
       {/* Outro marker */}
       {outro && max > 0 && (
         <div
-          className="absolute h-full  pointer-events-none"
+          className="absolute h-full rounded-full  pointer-events-none"
           style={{
             left: `${(outro.start_sec / max) * 100}%`,
             width: `${((outro.end_sec - outro.start_sec) / max) * 100}%`,
