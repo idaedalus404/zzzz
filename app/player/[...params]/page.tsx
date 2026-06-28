@@ -551,17 +551,14 @@ export default function Player() {
           onCanPlayThrough={handleCanPlay}
           onError={(e) => {
             handleServerFail();
-            const error = e.currentTarget.error;
+            // const error = e.currentTarget.error;
             // console.log(
             //   "Video error code:",
             //   error?.code,
             //   "message:",
             //   error?.message,
             // );
-            if (
-              fetchServer.server === "icarus" &&
-              error?.code === MediaError.MEDIA_ERR_NETWORK
-            ) {
+            if (fetchServer.server === "icarus") {
               fetch("/backend_/servers/icarus/report_error", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -570,8 +567,8 @@ export default function Player() {
                   mediaType: media_type,
                   season: media_type === "tv" ? season : "",
                   episode: media_type === "tv" ? episode : "",
-                  dub: dub || dubLang || "orig",
-                  type: Number(dub ? type : dubType) || 0,
+                  dub: source?.active?.langCode,
+                  type: source?.active?.langType,
                 }),
               });
             }

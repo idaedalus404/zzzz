@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import crypto from "crypto";
 import { MediaOption } from "./open-subtitle";
 import { generateFrontendToken, FIELD_MAP } from "@/lib/token";
 export interface QualityTrack {
@@ -28,6 +27,7 @@ export interface SourceTypes {
 export interface ActiveTypes {
   langCode: string;
   langName: string;
+  langType: string
 }
 interface UseSourceParams {
   media_type: string;

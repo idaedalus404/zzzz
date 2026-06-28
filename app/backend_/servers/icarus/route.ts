@@ -564,6 +564,7 @@ export async function GET(req: NextRequest) {
       meowmeow: !!cachedDownloads,
       active: {
         langCode: activeDub?.lanCode ?? "",
+        langType: activeDub?.type ?? 0,
         langName:
           activeDub?.lanName?.replace(/\b(dub|audio)\b/gi, "").trim() ?? "",
       },
