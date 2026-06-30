@@ -197,7 +197,12 @@ export async function GET(req: NextRequest) {
     }));
 
     logRequest(200, "OK!!!!!");
-    return NextResponse.json({ success: true, links, subtitles });
+    return NextResponse.json({
+      success: true,
+      links,
+      subtitles,
+      meow: !!cached,
+    });
   } catch (err: any) {
     console.error("API Error:", err);
     return NextResponse.json(
