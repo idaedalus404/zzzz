@@ -186,13 +186,6 @@ const supabase = createClient(
 
 const SCREENIFY = "https://www.screenify.fun";
 
-//https://daedalus.test35-f46.workers.dev/ https://daedalus.test34-2ea.workers.dev/ https://daedalus.test36-59e.workers.dev/
-//https://daedalus.test37-93b.workers.dev/ /https://daedalus.test39-43c.workers.dev/ https://daedalus.test40-fdf.workers.dev/
-//https://daedalus.test38-eab.workers.dev/ https://daedalus.test41-2c1.workers.dev/
-//https://daedalus.test45-b77.workers.dev/ https://daedalus.test44-255.workers.dev/  https://daedalus.test43-cbe.workers.dev/
-
-//https://daedalus.test48-104.workers.dev/ https://daedalus.test47-0f7.workers.dev/ https://daedalus.test49-3b0.workers.dev/
-//https://daedalus.test50-6c3.workers.dev/ https://daedalus.test52-b2c.workers.dev/ https://daedalus.test51-8b1.workers.dev/ https://daedalus.test46-96a.workers.dev/
 const DAEDALUS_WORKERS = [
   "test52-b2c",
   "test51-8b1",
