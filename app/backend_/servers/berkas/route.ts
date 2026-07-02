@@ -45,14 +45,11 @@ const PROXY_WORKERS = [
   "https://berkas.test048-123.workers.dev/",
   "https://berkas.test045.workers.dev/",
   "https://berkas.test046-43r.workers.dev/",
-
   "https://berkas.test98-a64.workers.dev/",
   "https://berkas.test97-f4b.workers.dev/",
   "https://berkas.test96-27b.workers.dev/",
   "https://berkas.test95-7d8.workers.dev/",
   "https://berkas.test100-1ff.workers.dev/",
-  //
-
   "https://berkas.test-zxcstream.workers.dev/",
   "https://berkas.test042.workers.dev/",
   "https://berkas.test041.workers.dev/",
