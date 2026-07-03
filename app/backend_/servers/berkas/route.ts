@@ -60,6 +60,12 @@ async function getHealthyWorker(): Promise<string | null> {
 }
 // /workers/subdomain
 const PROXY_WORKERS = [
+  "https://zxcstream.berkas40.workers.dev/",
+  "https://zxcstream.berkas39.workers.dev/",
+  "https://zxcstream.berkas38.workers.dev/",
+  "https://zxcstream.berkas37.workers.dev/",
+  "https://zxcstream.berkas36.workers.dev/",
+  "https://zxcstream.berkas35.workers.dev/",
   "https://zxcstream.berkas34.workers.dev/",
   "https://zxcstream.berkas33.workers.dev/",
   "https://zxcstream.berkas32.workers.dev/",
