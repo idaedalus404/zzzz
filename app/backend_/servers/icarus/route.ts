@@ -524,10 +524,8 @@ export async function GET(req: NextRequest) {
       // "https://long-frog-ec4e.coupdegrace21799.workers.dev/",
       // "https://damp-bonus-5625.mosangfour.workers.dev/",
       // "https://orange-paper-a80d.j61202287.workers.dev/",
-      // "https://still-butterfly-9b3e.zxcprime360.workers.dev/",
-      // "https://empty-pond-805b.zxcprime363.workers.dev/",
-      // "https://late-snowflake-5076.zxcprime362.workers.dev/",
-      // "https://weathered-frost-60b0.zxcprime361.workers.dev/",
+      "https://still-butterfly-9b3e.zxcprime360.workers.dev/",
+      "https://empty-pond-805b.zxcprime363.workers.dev/",
     ];
 
     const workingProxy = await getWorkingProxy(sortedDownloads[0].url, proxies);
