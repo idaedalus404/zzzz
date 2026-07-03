@@ -492,6 +492,10 @@ export async function GET(req: NextRequest) {
     } //Je@09185134757
     //Test155@zxcstream.xyz's Account
     const proxies = [
+      "https://proxy.icarus14.workers.dev/",
+      "https://proxy.icarus13.workers.dev/",
+      "https://proxy.icarus12.workers.dev/",
+      "https://proxy.icarus11.workers.dev/",
       "https://proxy.icarus10.workers.dev/",
       "https://proxy.icarus9.workers.dev/",
       "https://proxy.icarus8.workers.dev/",
