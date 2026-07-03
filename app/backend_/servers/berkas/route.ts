@@ -13,8 +13,55 @@ const supabase = createClient(
   process.env.SUPABASE_URL_BERKAS!,
   process.env.SUPABASE_SERVICE_ROLE_KEY_BERKAS!,
 );
+async function getNext8AMPH(): Promise<string> {
+  const now = new Date();
+  const ph = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  const next8AM = new Date(ph);
+  next8AM.setHours(8, 0, 0, 0);
+  if (ph >= next8AM) next8AM.setDate(next8AM.getDate() + 1);
+  const diff = next8AM.getTime() - ph.getTime();
+  return new Date(now.getTime() + diff).toISOString();
+}
+async function blacklistProxy(proxy: string) {
+  await supabase
+    .from("proxy_blacklist")
+    .upsert(
+      { proxy, expires_at: await getNext8AMPH() },
+      { onConflict: "proxy" },
+    );
+  console.log(`[PROXY] ⛔ blacklisted ${proxy}`);
+}
+
+async function getActiveProxies(proxies: string[]): Promise<string[]> {
+  const { data } = await supabase
+    .from("proxy_blacklist")
+    .select("proxy")
+    .gt("expires_at", new Date().toISOString());
+  const blocked = new Set((data ?? []).map((r: any) => r.proxy));
+  return proxies.filter((p) => !blocked.has(p));
+}
+async function getHealthyWorker(): Promise<string | null> {
+  const active = await getActiveProxies(PROXY_WORKERS);
+  const candidates = shuffle(active);
+
+  for (const worker of candidates) {
+    try {
+      const res = await fetchWithTimeout(worker, { method: "HEAD" }, 3000);
+      if (res.status === 429) {
+        await blacklistProxy(worker);
+        continue;
+      }
+      if (res.ok) return worker;
+    } catch (err) {
+      console.error(worker, err);
+    }
+  }
+  return null;
+}
 // /workers/subdomain
 const PROXY_WORKERS = [
+  "https://zxcstream.berkas16.workers.dev/",
+  "https://zxcstream.berkas15.workers.dev/",
   "https://zxcstream.berkas14.workers.dev/",
   "https://zxcstream.berkas13.workers.dev/",
   "https://zxcstream.berkas12.workers.dev/",
@@ -29,7 +76,6 @@ const PROXY_WORKERS = [
   "https://zxcstream.berkas3.workers.dev/",
   "https://zxcstream.berkas2.workers.dev/",
   "https://zxcstream.berkas1.workers.dev/",
-
   "https://berkas.test075-123.workers.dev/",
   "https://berkas.test078-123.workers.dev/",
   "https://berkas.test077-123.workers.dev/",
@@ -118,25 +164,6 @@ function shuffle<T>(arr: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-async function getHealthyWorker(): Promise<string | null> {
-  const candidates = shuffle(PROXY_WORKERS);
-
-  for (const worker of candidates) {
-    try {
-      const res = await fetchWithTimeout(worker, { method: "HEAD" }, 3000);
-
-      console.log(worker, res.status);
-
-      if (res.ok) {
-        return worker;
-      }
-    } catch (err) {
-      console.error(worker, err);
-    }
-  }
-
-  return null;
 }
 
 const STREAMDATA_URL = "https://streamdata.vaplayer.ru/api.php";

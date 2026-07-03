@@ -19,18 +19,17 @@ export const initialServers: ServerTypes[] = [
   //   status: "queue",
   //   desc: "Built-In Subtitle",
   // },
-
   {
-    name: "Daedalus III",
-    server: "daedalus",
-    status: "queue",
-    desc: "Alternative",
-  },
-  {
-    name: "Athena IV",
+    name: "Athena III",
     server: "athena",
     status: "queue",
     desc: "Main Server & Multi Audio Support",
+  },
+  {
+    name: "Daedalus IV",
+    server: "daedalus",
+    status: "queue",
+    desc: "Alternative",
   },
 
   {
