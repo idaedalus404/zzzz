@@ -20,24 +20,30 @@ export const initialServers: ServerTypes[] = [
     desc: "Built-In Subtitle",
   },
   {
-    name: "Athena III",
-    server: "athena",
-    status: "queue",
-    desc: "Main Server & Multi Audio Support",
-  },
-  {
-    name: "Daedalus IV",
-    server: "daedalus",
+    name: "Sentinel",
+    server: "sentinel",
     status: "queue",
     desc: "Alternative",
   },
+  // {
+  //   name: "Athena III",
+  //   server: "athena",
+  //   status: "queue",
+  //   desc: "Main Server & Multi Audio Support",
+  // },
+  // {
+  //   name: "Daedalus IV",
+  //   server: "daedalus",
+  //   status: "queue",
+  //   desc: "Alternative",
+  // },
 
-  {
-    name: "Talos V",
-    server: "zeus",
-    status: "queue",
-    desc: "Alternative",
-  },
+  // {
+  //   name: "Talos V",
+  //   server: "zeus",
+  //   status: "queue",
+  //   desc: "Alternative",
+  // },
   // {
   //   name: "Atlas VI",
   //   server: "atlas_v2",
@@ -59,3 +65,6 @@ export const initialServers: ServerTypes[] = [
   //   desc: "Spanish Audio",
   // },
 ];
+//https://megacloudx.net/pl/90521/8/27/
+//https://megacloudx.net/mv/tt8814476/1081003/
+//https://cineb.sh/

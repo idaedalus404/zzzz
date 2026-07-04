@@ -290,6 +290,7 @@ export async function GET(req: NextRequest) {
     const season = req.nextUrl.searchParams.get(FIELD_MAP.season);
     const episode = req.nextUrl.searchParams.get(FIELD_MAP.episode);
     const imdbId = req.nextUrl.searchParams.get(FIELD_MAP.imdbId);
+    const tmdbId = req.nextUrl.searchParams.get(FIELD_MAP.id);
     const ts = Number(req.nextUrl.searchParams.get(FIELD_MAP.ts));
     const token = req.nextUrl.searchParams.get(FIELD_MAP.token)!;
     const f_token = req.nextUrl.searchParams.get(FIELD_MAP.fToken)!;
