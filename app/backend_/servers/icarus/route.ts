@@ -492,6 +492,10 @@ export async function GET(req: NextRequest) {
     } //Je@09185134757
     //Test155@zxcstream.xyz's Account
     const proxies = [
+      "https://divine-king-c609.icarus06.workers.dev/",
+      "https://little-limit-e11e.icarus05.workers.dev/",
+      "https://dry-morning-36fb.icarus04.workers.dev/",
+      "https://ancient-limit-83f0.icarus03.workers.dev/",
       "https://sparkling-credit-c6b8.icarus02.workers.dev/",
       "https://green-dawn-9241.icarus01.workers.dev/",
 
@@ -503,8 +507,6 @@ export async function GET(req: NextRequest) {
       "https://proxy.icarus9.workers.dev/",
       "https://proxy.icarus8.workers.dev/",
       "https://proxy.icarus7.workers.dev/",
-
-      "https://proxy.icarus4.workers.dev/",
       "https://proxy.icarus3.workers.dev/",
       //
       "https://icarus.test155-123.workers.dev/",
