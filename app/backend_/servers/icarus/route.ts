@@ -333,7 +333,7 @@ export async function GET(req: NextRequest) {
             tmdb_id: tmdbId,
             media_type: mediaType,
             dubs,
-            release_date: date,
+            release_date: date, 
             title,
           },
           { onConflict: "tmdb_id,media_type", ignoreDuplicates: true },
