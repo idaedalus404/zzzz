@@ -12,8 +12,8 @@ function validateFrontendToken(xt: string, id: string, rt: number) {
     .update(`${rt}:${SALT}:${id}`) // must mirror generateFrontendToken
     .digest("hex")
     .slice(0, 64);
-  const age = Date.now() - rt;
-  return expected === xt && age >= 0 && age < 30000;
+
+  return expected === xt && Date.now() - rt < 30000;
 }
 
 function generateBackendToken(xt: string, id: string) {
