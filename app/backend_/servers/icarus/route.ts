@@ -144,7 +144,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (Date.now() - ts > 8000) {
+    if (Date.now() - ts > 30000) {
       logRequest(403, "token expired");
       return NextResponse.json(
         { success: false, error: "Invalid token" },
@@ -333,7 +333,7 @@ export async function GET(req: NextRequest) {
             tmdb_id: tmdbId,
             media_type: mediaType,
             dubs,
-            release_date: date, 
+            release_date: date,
             title,
           },
           { onConflict: "tmdb_id,media_type", ignoreDuplicates: true },
