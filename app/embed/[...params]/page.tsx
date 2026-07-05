@@ -1,52 +1,70 @@
 "use client";
+
 import { useParams } from "next/navigation";
-import { useState } from "react";
-import "ldrs/react/Ring.css";
 import { Tailspin } from "ldrs/react";
 import "ldrs/react/Tailspin.css";
-import { useAdStore } from "@/zustand/ad-store";
-export default function ZXCPlayer() {
+import { useTmdbDetails } from "@/hooks/fetch-details";
+import { useSentinelEmbed } from "@/hooks/fetch-embed";
+import { AnimatePresence, motion } from "framer-motion";
+export default function Embed() {
   const { params } = useParams() as { params?: string[] };
-  const [isLoading, setIsLoading] = useState(true);
+  const media_type = String(params?.[0]);
+  const id = String(params?.[1]);
+  const season = params?.[2] ? Number(params[2]) : undefined;
+  const episode = params?.[3] ? Number(params[3]) : undefined;
 
-  const media_type = params?.[0];
-  const id = params?.[1];
-  const season = params?.[2];
-  const episode = params?.[3];
+  const { data: details } = useTmdbDetails(media_type, id, "en-US");
 
-  const query = new URLSearchParams({
-    type: media_type || "",
-    id: id || "",
-    ...(media_type === "tv" && season && episode ? { season, episode } : {}),
-  }).toString();
+  const { data: source, isLoading } = useSentinelEmbed({
+    tmdbId: id,
+    media_type,
+    season,
+    episode,
+    imdbId: details?.imdb_id,
+    enabled: !!details?.imdb_id,
+  });
 
-  const path = `/backend/servers/built-in?${query}`;
-  // console.log(path);
-  const triggerAd = useAdStore((state) => state.triggerAd);
+  const backdrop = details?.backdrop_paths[0] ?? null;
+
   return (
-    <div
-      className="relative w-full h-dvh bg-black overflow-hidden"
-      onClick={triggerAd}
-    >
-      {/* Loading Screen */}
-      {isLoading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
-          <Tailspin size="80" stroke="7" speed="0.9" color="white" />
-        </div>
-      )}
+    <div className="relative w-full h-dvh bg-black overflow-hidden">
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            key="loader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 z-10 flex items-center justify-center bg-black"
+          >
+            {backdrop && (
+              <img
+                src={`https://image.tmdb.org/t/p/original${backdrop}`}
+                alt="backdrop"
+                className="object-cover opacity-30 "
+              />
+            )}
+            <div className="absolute">
+              <Tailspin size="50" stroke="7" speed="0.9" color="white" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Iframe */}
-      <iframe
-        src={path}
-        className="absolute inset-0 w-full h-screen"
-        frameBorder={0}
-        allowFullScreen
-        // Hide iframe until it's fully loaded
-        style={{ opacity: isLoading ? 0 : 1 }}
-        onLoad={() => setIsLoading(false)}
-        // Optional: handle errors
-        onError={() => setIsLoading(false)}
-      />
+      <AnimatePresence>
+        {source?.embed && (
+          <motion.iframe
+            key="iframe"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            src={source.embed}
+            className="absolute inset-0 w-full h-screen"
+            frameBorder={0}
+            allowFullScreen
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

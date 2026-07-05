@@ -2,20 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateBackendToken } from "@/lib/validate-token";
 import { isValidReferer } from "@/lib/allowed-referers";
 import { FIELD_MAP } from "@/lib/token";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL_SENTINEL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY_SENTINEL!,
-);
 
 const MEGACLOUD = "https://megacloudx.net";
 
-async function fetchSource(url: string): Promise<{
-  hls: string;
-  tracks: object[];
-  embed_url: string;
-} | null> {
+async function fetchEmbedUrl(url: string): Promise<string | null> {
   const res = await fetch(url, {
     headers: {
       "User-Agent":
@@ -40,23 +30,8 @@ async function fetchSource(url: string): Promise<{
 
   if (!res.ok) return null;
 
-  const embed_url = res.url; // https://megacloudx.net/e/0114ig6p6pvy?sub.info=...
-
-  const html = await res.text();
-
-  const hlsMatch = html.match(/var HLS\s*=\s*"([^"]+)"/);
-  const tracksMatch = html.match(/var TRACKS\s*=\s*(\[.*?\]);/);
-
-  if (!hlsMatch) return null;
-
-  return {
-    hls: hlsMatch[1],
-    tracks: tracksMatch ? JSON.parse(tracksMatch[1]) : [],
-    embed_url,
-  };
-}
-function formatTracks(tracks: any[]) {
-  return tracks.map((t) => ({ ...t, display: t.label }));
+  // Final redirected embed URL
+  return res.url;
 }
 
 export async function GET(req: NextRequest) {
@@ -77,7 +52,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (Date.now() - Number(ts) > 8000) {
+    if (Date.now() - ts > 8000) {
       return NextResponse.json(
         { success: false, error: "Invalid token" },
         { status: 403 },
@@ -99,69 +74,23 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const seasonKey = season ?? "";
-    const episodeKey = episode ?? "";
-
-    // check cache
-    const { data: cached } = await supabase
-      .from("megacloud_source")
-      .select("hls, tracks")
-      .eq("media_type", media_type)
-      .eq("tmdb_id", id)
-      .eq("season", seasonKey)
-      .eq("episode", episodeKey)
-      .gt("expires_at", new Date().toISOString())
-      .maybeSingle();
-
-    if (cached) {
-      return NextResponse.json({
-        success: true,
-        links: [{ type: "hls", link: cached.hls }],
-        subtitles: formatTracks(cached.tracks),
-        cached: true,
-      });
-    }
-
-    // fetch fresh
     const pageUrl =
       media_type === "tv"
-        ? `${MEGACLOUD}/pl/${id}/${seasonKey}/${episodeKey}/`
+        ? `${MEGACLOUD}/pl/${id}/${season ?? ""}/${episode ?? ""}/`
         : `${MEGACLOUD}/mv/${imdbId}/${id}/`;
 
-    const source = await fetchSource(pageUrl);
+    const embedUrl = await fetchEmbedUrl(pageUrl);
 
-    if (!source) {
+    if (!embedUrl) {
       return NextResponse.json(
         { success: false, error: "Source not found" },
         { status: 502 },
       );
     }
 
-    // cache it
-
-    await supabase.from("megacloud_source").upsert(
-      {
-        media_type,
-        tmdb_id: id,
-        imdb_id: imdbId ?? null,
-        season: seasonKey,
-        episode: episodeKey,
-        hls: source.hls,
-        tracks: source.tracks,
-        embed_url: source.embed_url,
-        expires_at: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
-      },
-      {
-        onConflict: "media_type,tmdb_id,season,episode",
-        ignoreDuplicates: false,
-      },
-    );
-
     return NextResponse.json({
       success: true,
-      links: [{ type: "hls", link: source.hls }],
-      subtitles: formatTracks(source.tracks),
-      cached: false,
+      embed: embedUrl,
     });
   } catch {
     return NextResponse.json(

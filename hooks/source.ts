@@ -2,7 +2,6 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { MediaOption } from "./open-subtitle";
 import { generateFrontendToken, FIELD_MAP } from "@/lib/token";
-
 export interface QualityTrack {
   resolution?: number;
   format?: string;
@@ -16,20 +15,20 @@ export interface DubTypes {
   original: boolean;
   type: 0 | 1;
 }
+
 export interface SourceTypes {
   success: boolean;
   links: QualityTrack[];
   subtitles: MediaOption[];
   dubs?: DubTypes[];
   active?: ActiveTypes;
-  fallback: boolean;
+  fallback: boolean
 }
 export interface ActiveTypes {
   langCode: string;
   langName: string;
-  langType: string;
+  langType: string
 }
-
 interface UseSourceParams {
   media_type: string;
   tmdbId: string;
@@ -46,17 +45,6 @@ interface UseSourceParams {
   enable: boolean;
 }
 
-async function resolveHlsFromEmbed(embedUrl: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `/backend_/embed?url=${encodeURIComponent(embedUrl)}`,
-    );
-    const data = await res.json();
-    return data.hls ?? null;
-  } catch {
-    return null;
-  }
-}
 export default function useSource(
   params: UseSourceParams & { onCancel?: () => void },
 ) {
@@ -84,17 +72,17 @@ export default function useSource(
       season,
       episode,
       imdbId,
-      server,
+      server, // ← only refetches after scroll stops
       title,
       year,
       quality,
       dubCode,
       dubType,
     ],
-    enabled: Boolean(tmdbId && imdbId && server === server) && enable,
+    enabled: Boolean(tmdbId && imdbId && server === server) && enable, // ← blocks fetch while scrolling
     retry: false,
-    staleTime: 1000 * 60 * 60,
-    gcTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 60, // 1 hour → no refetch for 1 hour
+    gcTime: 1000 * 60 * 60, // 1 hour → garbage collect after 1 hour
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchIntervalInBackground: false,
@@ -105,12 +93,22 @@ export default function useSource(
         server,
         tmdbId,
       });
-
+      // if (server === "thanatos") {
+      //   return fetchThanatosSource({
+      //     media_type,
+      //     tmdbId,
+      //     season,
+      //     episode,
+      //     imdbId,
+      //     title,
+      //     year,
+      //   });
+      // }
       const { xt, rt } = generateFrontendToken(String(tmdbId));
-      const backendRes = await fetchBackendToken(tmdbId, xt, rt);
-      const sig = backendRes[FIELD_MAP.token];
-      const ts = backendRes[FIELD_MAP.ts];
 
+      const backendRes = await fetchBackendToken(tmdbId, xt, rt);
+      const sig = backendRes[FIELD_MAP.token]; // "sig"
+      const ts = backendRes[FIELD_MAP.ts]; // "rt"
       const url = buildSourceURL({
         server,
         tmdbId,
@@ -123,37 +121,26 @@ export default function useSource(
         date,
         dubCode,
         dubType,
+        // quality,
         ts,
         sig,
         xt,
       });
-
       const res = await axios.get(url);
-      const data = res.data;
-
-      // sentinel server returns embed_url — resolve HLS client-side
-      if (data.embed_url) {
-        const hls = await resolveHlsFromEmbed(data.embed_url);
-        if (hls) {
-          data.links = [{ type: "hls", link: hls }];
-        }
-      }
-
       await sleep(1200);
-      return data;
+      return res.data;
     },
   });
 }
 
 async function fetchBackendToken(id: string, xt: string, rt: number) {
   const res = await axios.post("/backend/token", {
-    [FIELD_MAP.id]: id,
-    [FIELD_MAP.fToken]: xt,
-    [FIELD_MAP.ts]: rt,
+    [FIELD_MAP.id]: id, // "mid"
+    [FIELD_MAP.fToken]: xt, // "xt"
+    [FIELD_MAP.ts]: rt, // "rt"
   });
   return res.data;
 }
-
 interface BuildSourceURLParams {
   server: string;
   tmdbId: string;
@@ -165,8 +152,9 @@ interface BuildSourceURLParams {
   year: string;
   date: string;
   ts: number;
-  sig: string;
-  xt: string;
+  sig: string; // was: token
+  xt: string; // was: f_token
+
   dubCode: string;
   dubType: string;
 }
@@ -209,9 +197,121 @@ function buildSourceURL({
   if (imdbId) {
     params.append(FIELD_MAP.imdbId, imdbId);
   }
+  // params.append("dub", "tl");
   return `/backend_/servers/${server}?${params.toString()}`;
 }
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// videasy-2.zxcprime365.workers.dev
+
+// async function fetchThanatosSource({
+//   media_type,
+//   tmdbId,
+//   season,
+//   episode,
+//   title,
+//   year,
+//   imdbId,
+// }: {
+//   media_type: string;
+//   tmdbId: string;
+//   season: number;
+//   episode: number;
+//   imdbId: string | null;
+//   title: string;
+//   year: string;
+// }): Promise<SourceTypes> {
+//   // Step 1: Fetch encrypted source directly (user's IP)
+//   const qs = new URLSearchParams({
+//     title,
+//     mediaType: media_type,
+//     year,
+//     tmdbId,
+//   });
+
+//   if (imdbId) {
+//     qs.set("imdbId", imdbId);
+//   }
+
+//   if (media_type === "tv") {
+//     qs.set("seasonId", String(season));
+//     qs.set("episodeId", String(episode));
+//   } else {
+//     // Movies still need episodeId=1 and seasonId=1 per the example URL
+//     qs.set("episodeId", "1");
+//     qs.set("seasonId", "1");
+//   }
+
+//   const videasyRes = await axios.get(
+//     `https://api.videasy.to/mb-flix/sources-with-title?${qs}`,
+//     {
+//       headers: {
+//         "User-Agent":
+//           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+//         Referer: "https://videasy.to/",
+//       },
+//     },
+//   );
+
+//   // Step 2: Decrypt directly from browser (user's IP)
+//   const decryptRes = await axios.post("https://enc-dec.app/api/dec-videasy", {
+//     text: videasyRes.data,
+//     id: tmdbId,
+//   });
+
+//   const sources = decryptRes.data?.result?.sources;
+//   if (!Array.isArray(sources) || sources.length === 0) {
+//     throw new Error("No stream found");
+//   }
+
+//   // Step 3: Still use backend only for proxy selection (no rate-limited calls here)
+//   const finalM3u8 = encodeURIComponent(
+//     sources.find((f: any) => f.quality === "1080p")?.url ??
+//       sources.at(0)?.url ??
+//       "",
+//   );
+
+//   const proxies = [
+//     "/backend/proxy/videasy/",
+//     // "https://crimson-disk-c4aa.zxcprime368.workers.dev/",
+//     // "https://damp-glitter-6277.zxcprime367.workers.dev/",
+//     // "https://billowing-king-b723.jerometecson33.workers.dev/",
+//     // "https://snowy-recipe-f96e.jerometecson000.workers.dev/",
+//     // "https://morning-unit-723b.jinluxus303.workers.dev/",
+//     // "https://square-darkness-1efb.amenohabakiri174.workers.dev/",
+//   ];
+
+//   // Step 4: Find working proxy client-side
+//   const workingProxy = await getWorkingProxyClient(finalM3u8, proxies);
+//   if (!workingProxy) throw new Error("No working proxy available");
+
+//   await sleep(1200);
+//   return {
+//     success: true,
+//     links: [{ type: "hls", link: `${workingProxy}?m3u8-proxy=${finalM3u8}` }],
+//     subtitles: [],
+//   };
+// }
+
+async function getWorkingProxyClient(
+  url: string,
+  proxies: string[],
+  signal?: AbortSignal,
+): Promise<string | null> {
+  for (const proxy of proxies) {
+    try {
+      const res = await fetch(`${proxy}?m3u8-proxy=${url}`, {
+        method: "HEAD",
+        headers: { Range: "bytes=0-1" },
+        signal,
+      });
+      if (res.ok) return proxy;
+    } catch {
+      // try next
+    }
+  }
+  return null;
 }
