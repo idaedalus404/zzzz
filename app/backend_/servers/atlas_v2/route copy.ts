@@ -13,8 +13,66 @@ const supabase = createClient(
 const WORKER_URL = "https://main.jinluxuz.workers.dev";
 const WORKER_SECRET = "xk92mZpQ7vLw3nRt";
 const FEBBOX_PLAYER_WORKER = "https://feb.jinluxusz.workers.dev/";
+// const FEBBOX_PLAYER_WORKER = "https://proxy.jerometecson0.workers.dev";
 const MAX_FILE_SIZE_GB = 60;
 const QUALITY_ORDER = ["1080p", "720p", "360p", "auto", "4k", "480p"];
+// const QUALITY_ORDER = ["360p", "auto"];
+async function dbGet(
+  tmdbId: string,
+  mediaType: string,
+  season: string | null,
+  episode: string | null,
+) {
+  try {
+    let query = supabase
+      .from("streams")
+      .select("share_token, files")
+      .eq("tmdb_id", Number(tmdbId))
+      .eq("media_type", mediaType);
+
+    if (season) query = query.eq("season", Number(season));
+    else query = query.is("season", null);
+
+    if (episode) query = query.eq("episode", Number(episode));
+    else query = query.is("episode", null);
+
+    const { data, error } = await query.maybeSingle();
+    if (error || !data) return null;
+
+    return {
+      share_token: data.share_token,
+      files: data.files ?? [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function dbSave(
+  tmdbId: string,
+  mediaType: string,
+  season: string | null,
+  episode: string | null,
+  year: string,
+  shareToken: string,
+  files: any[],
+) {
+  try {
+    const { error } = await supabase.from("streams").insert({
+      tmdb_id: Number(tmdbId),
+      media_type: mediaType,
+      season: season ? Number(season) : null,
+      episode: episode ? Number(episode) : null,
+      year: Number(year),
+      share_token: shareToken,
+      files,
+    });
+
+    if (error) console.warn("[dbSave] error:", error);
+  } catch (err: any) {
+    console.warn("[dbSave] exception:", err.message);
+  }
+}
 
 function parseFileSizeGB(sizeStr: string): number {
   if (!sizeStr) return 0;
@@ -42,18 +100,26 @@ function selectBestFile(files: any[]) {
   );
 }
 
-function buildResponse(streams: Record<string, string>, cache: boolean) {
+function buildResponse(playerData: any) {
+  const streams: Record<string, string> = playerData.streams ?? {};
+
   const links = QUALITY_ORDER.filter((q) => streams[q]).map((q) => ({
     type: "hls" as const,
     link: streams[q],
     resolution: parseInt(q),
   }));
-  return NextResponse.json({
-    success: true,
-    links,
-    subtitles: [],
-    meow: cache,
-  });
+
+  const byLanguage: Record<string, any[]> =
+    playerData.subtitles?.by_language ?? {};
+  const subtitles = Object.values(byLanguage)
+    .flat()
+    .map((sub: any) => ({
+      id: sub.sid,
+      display: sub.language,
+      file: sub.url,
+    }));
+
+  return NextResponse.json({ success: true, links, subtitles });
 }
 
 export async function GET(req: NextRequest) {
@@ -111,35 +177,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { data: cachedStreams } = await supabase
-      .from("feb_stream_cache")
-      .select("stream_links, expires_at")
-      .eq("tmdb_id", Number(tmdbId))
-      .eq("media_type", mediaType)
-      .eq("season", season ?? "")
-      .eq("episode", episode ?? "")
-      .maybeSingle();
-
-    if (
-      cachedStreams?.stream_links &&
-      cachedStreams.expires_at &&
-      new Date(cachedStreams.expires_at) > new Date()
-    ) {
-      logRequest(200, "cached streams");
-      return buildResponse(cachedStreams.stream_links, true);
-    }
-
-    const { data: cached } = await supabase
-      .from("feb_stream")
-      .select("files")
-      .eq("tmdb_id", Number(tmdbId))
-      .eq("media_type", mediaType)
-      .eq("season", season ?? "")
-      .eq("episode", episode ?? "")
-      .maybeSingle();
+    const cached = await dbGet(tmdbId, mediaType, season, episode);
 
     if (cached) {
-      const bestFile = selectBestFile(cached.files);
+      const { share_token: shareToken, files } = cached;
+      const bestFile = selectBestFile(files);
       if (!bestFile) {
         logRequest(403, "file not found");
         return NextResponse.json(
@@ -148,38 +190,13 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      const playerRes = await fetchWithTimeout(
+      const playerData = await fetchWithTimeout(
         `${FEBBOX_PLAYER_WORKER}/?fid=${bestFile.data_id}`,
         {},
         8000,
-      );
-      if (!playerRes.ok) {
-        logRequest(playerRes.status, "player worker failed");
-        return NextResponse.json(
-          { success: false, error: "Failed to load streams" },
-          { status: 500 },
-        );
-      }
-
-      const playerData = await playerRes.json();
-      if (!playerData?.streams) {
-        logRequest(500, "player worker failed");
-        return NextResponse.json(
-          { success: false, error: "Failed to load streams" },
-          { status: 500 },
-        );
-      }
-      await supabase.from("feb_stream_cache").upsert({
-        tmdb_id: Number(tmdbId),
-        media_type: mediaType,
-        season: season ?? "",
-        episode: episode ?? "",
-        stream_links: playerData.streams,
-        expires_at: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
-      });
-      console.log(playerData);
+      ).then((r) => r.json());
       logRequest(200, "OK!!!!!");
-      return buildResponse(playerData.streams, false);
+      return buildResponse(playerData);
     }
 
     const qs = new URLSearchParams({
@@ -191,9 +208,10 @@ export async function GET(req: NextRequest) {
       ...(episode && { episode }),
     });
 
-    const workerRes = await fetchWithTimeout(`${WORKER_URL}/?${qs}`, {}, 8000);
+    const data = await fetchWithTimeout(`${WORKER_URL}/?${qs}`, {}, 8000).then(
+      (r) => r.json(),
+    );
 
-    const data = await workerRes.json();
     if (!data.success) {
       logRequest(500, "main.jinluxuz failed");
       return NextResponse.json(data, { status: 500 });
@@ -210,49 +228,17 @@ export async function GET(req: NextRequest) {
 
     const bestFile = selectBestFile(files);
 
-    const playerRes = await fetchWithTimeout(
-      `${FEBBOX_PLAYER_WORKER}/?fid=${bestFile.data_id}`,
+    dbSave(tmdbId, mediaType, season, episode, year, shareToken, files).catch(
+      (e: any) => console.warn("dbSave failed:", e.message),
+    );
+
+    const playerData = await fetchWithTimeout(
+      `${FEBBOX_PLAYER_WORKER}/?fid=${bestFile.data_id}&share_key=${shareToken}`,
       {},
       8000,
-    );
-    if (!playerRes.ok) {
-      logRequest(playerRes.status, "player worker failed");
-      return NextResponse.json(
-        { success: false, error: "Failed to load streams" },
-        { status: 500 },
-      );
-    }
-
-    const playerData = await playerRes.json();
-    if (!playerData?.streams) {
-      logRequest(500, "player worker failed");
-      return NextResponse.json(
-        { success: false, error: "Failed to load streams" },
-        { status: 500 },
-      );
-    }
-    await Promise.all([
-      supabase.from("feb_stream").upsert({
-        tmdb_id: Number(tmdbId),
-        media_type: mediaType,
-        season: season ?? "",
-        episode: episode ?? "",
-        year,
-        share_token: shareToken,
-        files,
-      }),
-      supabase.from("feb_stream_cache").upsert({
-        tmdb_id: Number(tmdbId),
-        media_type: mediaType,
-        season: season ?? "",
-        episode: episode ?? "",
-        stream_links: playerData.streams,
-        expires_at: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
-      }),
-    ]);
-    console.log(playerData);
+    ).then((r) => r.json());
     logRequest(200, "OK!!!!!");
-    return buildResponse(playerData.streams, false);
+    return buildResponse(playerData);
   } catch (err: any) {
     console.error("API Error:", err);
     return NextResponse.json(
