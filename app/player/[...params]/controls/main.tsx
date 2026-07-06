@@ -159,6 +159,7 @@ export default function MainControls({
         "after:bg-linear-to-bl after:from-transparent after:via-transparent after:to-black/70",
       )}
       onPointerMove={lockTimer}
+      onPointerDown={lockTimer}
     >
       <div
         className={cn(
@@ -251,13 +252,13 @@ export default function MainControls({
           <div
             className={cn(
               "lg:text-lg md:text-sm",
-              "text-gray-300 font-medium",
+              "text-gray-400 font-medium",
               "md:mt-2",
               "flex gap-3",
             )}
           >
-            <p>{status}</p> /<p>{genre}</p>/
-            <p>{media_type === "tv" ? "TV Show" : "Movie"}</p>
+            <p>{media_type === "tv" ? "TV Show" : "Movie"}</p> /<p>{genre}</p>/
+            <p>{status}</p>
           </div>
         </div>
 

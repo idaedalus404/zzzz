@@ -61,6 +61,7 @@ export default function Episodes({
           lockTimer();
         }}
         onPointerMove={lockTimer}
+        onPointerDown={lockTimer}
         className="lg:translate-y-0.5 translate-y-1 text-white/80 hover:text-white cursor-pointer"
       >
         <EpisodesIcon className="lg:size-9.5 md:size-7 size-7.5 landscape:size-6" />

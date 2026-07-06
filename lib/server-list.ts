@@ -14,12 +14,7 @@ export const initialServers: ServerTypes[] = [
     status: "queue",
     desc: "4K Support ",
   },
-  {
-    name: "Sentinel",
-    server: "atlas_v2",
-    status: "queue",
-    desc: "Alternative",
-  },
+
   {
     name: "Orion II",
     server: "orion",

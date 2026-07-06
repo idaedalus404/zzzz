@@ -11,7 +11,7 @@ export default function LoadingMetadata({ logo }: { logo: string }) {
     >
       <div className="absolute bottom-12 left-12   flex justify-center items-center  ">
         <img
-          className="object-contain object-left lg:max-w-md max-w-sm max-h-30 lg:max-h-50 drop-shadow-sm "
+          className="object-contain object-left lg:max-w-md max-w-sm max-h-30 lg:max-h-50 drop-shadow-sm animate-pulse"
           src={`https://image.tmdb.org/t/p/w780/${logo}`}
           alt=""
         />
