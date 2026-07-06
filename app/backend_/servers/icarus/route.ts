@@ -28,7 +28,7 @@ async function getNext8AMPH(): Promise<string> {
 }
 async function blacklistProxy(proxy: string) {
   const expires_at = await getNext8AMPH();
-  void supabase
+  await supabase
     .from("proxy_blacklist")
     .upsert(
       { proxy, expires_at, hit_count: 1 },
@@ -340,7 +340,7 @@ export async function GET(req: NextRequest) {
       }
 
       if (dubs.length > 0) {
-        void supabase.from("moviebox_cache").upsert(
+        await supabase.from("moviebox_cache").upsert(
           {
             tmdb_id: tmdbId,
             media_type: mediaType,
@@ -503,7 +503,7 @@ export async function GET(req: NextRequest) {
         file: c.url,
       }));
       if (subtitles.length > 0) {
-        void supabaseSubtitle.from("moviebox_subtitles_cache").upsert(
+        await supabaseSubtitle.from("moviebox_subtitles_cache").upsert(
           {
             tmdb_id: tmdbId,
             media_type: mediaType,
@@ -542,7 +542,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!cachedDownloads) {
-      const { error } = await supabase.from("moviebox_downloads_cache").upsert(
+      await supabase.from("moviebox_downloads_cache").upsert(
         {
           tmdb_id: tmdbId,
           media_type: mediaType,
@@ -560,7 +560,6 @@ export async function GET(req: NextRequest) {
           // ignoreDuplicates: true,
         },
       );
-      if (error) console.log("[CACHE] upsert error:", error);
     }
 
     const links = await Promise.all(
