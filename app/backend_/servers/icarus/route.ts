@@ -16,7 +16,7 @@ const supabaseSubtitle = createClient(
 
 let blacklistCache: Set<string> | null = null;
 let blacklistCacheTime = 0;
-const BLACKLIST_TTL = 60_000;
+const BLACKLIST_TTL = 5 * 60_000;
 async function getNext8AMPH(): Promise<string> {
   const now = new Date();
   const ph = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Manila" }));
