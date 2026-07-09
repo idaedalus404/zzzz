@@ -13,50 +13,9 @@ export const useAdStore2 = create<AdStore>()(
       lastCooldownStart: 0,
       adsShown: 0,
 
-      // triggerAd: () => {
-      //   const now = Date.now();
-      //   const cooldown = 15 * 60 * 1000; // 10 min
-
-      //   const { lastCooldownStart, adsShown } = get();
-
-      //   // Cooldown active
-      //   if (lastCooldownStart > 0 && now - lastCooldownStart < cooldown) {
-      //     console.log("Cooldown active");
-      //     return;
-      //   }
-
-      //   // Cooldown finished -> reset cycle
-      //   if (lastCooldownStart > 0 && now - lastCooldownStart >= cooldown) {
-      //     set({
-      //       adsShown: 0,
-      //       lastCooldownStart: 0,
-      //     });
-      //   }
-
-      //   // Show ad
-      //   window.open(
-      //     "https://injusticebakery.com/m1n8h68e?key=a640607f30762b7dd7189c135c77afcd",
-      //     "_blank",
-      //   );
-
-      //   const newCount = get().adsShown + 1;
-
-      //   // After 2 ads, start cooldown
-      //   if (newCount >= 2) {
-      //     set({
-      //       adsShown: 0,
-      //       lastCooldownStart: now,
-      //     });
-      //   } else {
-      //     set({
-      //       adsShown: newCount,
-      //     });
-      //   }
-      // },
-
       triggerAd: () => {
         const now = Date.now();
-        const cooldown = 15 * 60 * 1000; // 15 min
+        const cooldown = 10 * 60 * 1000; // 10 min
 
         const { lastCooldownStart, adsShown } = get();
 
@@ -74,31 +33,24 @@ export const useAdStore2 = create<AdStore>()(
           });
         }
 
-        const showPopup = () => {
-          window.open(
-            "https://injusticebakery.com/m1n8h68e?key=a640607f30762b7dd7189c135c77afcd",
-            "_blank",
-          );
+        // Show ad
+        window.open(
+          "https://injusticebakery.com/m1n8h68e?key=a640607f30762b7dd7189c135c77afcd",
+          "_blank",
+        );
 
-          const newCount = get().adsShown + 1;
+        const newCount = get().adsShown + 1;
 
-          if (newCount >= 2) {
-            set({
-              adsShown: 0,
-              lastCooldownStart: Date.now(),
-            });
-          } else {
-            set({
-              adsShown: newCount,
-            });
-          }
-        };
-
-        // Delay only the second popup
-        if (adsShown === 1) {
-          setTimeout(showPopup, 2000);
+        // After 2 ads, start cooldown
+        if (newCount >= 2) {
+          set({
+            adsShown: 0,
+            lastCooldownStart: now,
+          });
         } else {
-          showPopup();
+          set({
+            adsShown: newCount,
+          });
         }
       },
     }),
