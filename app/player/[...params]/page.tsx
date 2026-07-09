@@ -823,7 +823,7 @@ export default function Player() {
               doubleTapSide === "left" ? "left-0" : "right-0"
             }`}
           >
-            <span className="text-3xl landscape:text-xs font-medium text-white ">
+            <span className="text-3xl landscape:text-xs font-medium text-white">
               {doubleTapSide === "left" ? "−15s" : "+15s"}
             </span>
           </motion.div>
