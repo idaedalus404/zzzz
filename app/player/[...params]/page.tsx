@@ -734,9 +734,31 @@ export default function Player() {
           ref={videoRef}
           onCanPlayThrough={handleCanPlay}
           onError={(e) => {
+            const video = e.currentTarget;
+            const error = video.error;
+
+            console.log("Video error:", error);
+
+            if (error) {
+              console.log({
+                code: error.code,
+                message: error.message,
+                networkState: video.networkState,
+                readyState: video.readyState,
+                currentSrc: video.currentSrc,
+              });
+
+              // Ignore aborted loads (usually caused by changing src)
+              if (error.code === MediaError.MEDIA_ERR_ABORTED) {
+                return;
+              }
+            }
+
             handleServerFail();
+
             if (fetchServer.server === "icarus" && !errorReportCalled.current) {
               errorReportCalled.current = true;
+
               fetch("/backend_/servers/icarus/report_error", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
