@@ -696,31 +696,31 @@ export default function Player() {
 
       //   triggerAd();
       // }}
-      onClick={() => {
-        // First click: only test the sandbox
-        if (!checkedSandbox && window.self !== window.top) {
-          const popup = window.open(
-            "",
-            "_blank",
-            "popup,width=1,height=1,left=2000,top=1000",
-          );
+      // onClick={() => {
+      //   // First click: only test the sandbox
+      //   if (!checkedSandbox && window.self !== window.top) {
+      //     const popup = window.open(
+      //       "",
+      //       "_blank",
+      //       "popup,width=1,height=1,left=2000,top=1000",
+      //     );
 
-          const sandboxed =
-            !popup || popup.closed || typeof popup.closed === "undefined";
+      //     const sandboxed =
+      //       !popup || popup.closed || typeof popup.closed === "undefined";
 
-          if (popup && !sandboxed) {
-            popup.close();
-          }
+      //     if (popup && !sandboxed) {
+      //       popup.close();
+      //     }
 
-          setCheckedSandbox(true);
+      //     setCheckedSandbox(true);
 
-          if (sandboxed) {
-            setIsSandboxed(true);
-          }
+      //     if (sandboxed) {
+      //       setIsSandboxed(true);
+      //     }
 
-          return;
-        }
-      }}
+      //     return;
+      //   }
+      // }}
     >
       <AnimatePresence>
         {showFallbackBanner && (
