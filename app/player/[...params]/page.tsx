@@ -462,64 +462,39 @@ export default function Player() {
     platform: "profiton",
   });
   useEffect(() => {
-    if (window.self === window.top) {
-      console.log("[sandbox] Top window");
-      return;
-    }
+    if (window.self === window.top) return;
 
-    console.log("[sandbox] Running inside iframe");
-
-    try {
-      if (window.frameElement?.hasAttribute("sandbox")) {
-        console.log("[sandbox] frameElement has sandbox attribute");
-      } else {
-        console.log("[sandbox] frameElement has no sandbox attribute");
-      }
-    } catch (err) {
-      console.log("[sandbox] Cannot access frameElement", err);
-    }
+    let sandboxed = false;
 
     try {
       document.domain = document.domain;
-      console.log("[sandbox] document.domain assignment succeeded");
     } catch (err) {
-      console.log("[sandbox] document.domain assignment failed", err);
-
-      try {
-        if (String(err).toLowerCase().includes("sandbox")) {
-          console.log("[sandbox] Sandbox detected from document.domain");
-        }
-      } catch {}
+      if (err instanceof DOMException && err.name === "SecurityError") {
+        sandboxed = true;
+      }
     }
 
-    try {
-      const pdfViewer = window.navigator.plugins.namedItem("Chrome PDF Viewer");
+    if (!sandboxed) {
+      try {
+        if (navigator.plugins.namedItem("Chrome PDF Viewer")) {
+          const obj = document.createElement("object");
+          obj.data = "data:application/pdf;base64,aG1t";
 
-      if (!pdfViewer) {
-        console.log("[sandbox] Chrome PDF Viewer not available");
-        return;
-      }
+          obj.onload = () => {
+            console.log("Not sandboxed");
+            obj.remove();
+          };
 
-      console.log("[sandbox] Chrome PDF Viewer found");
+          obj.onerror = () => {
+            console.log("Sandboxed (PDF)");
+            obj.remove();
+          };
 
-      const obj = document.createElement("object");
-      obj.data = "data:application/pdf;base64,aG1t";
-      obj.style.cssText =
-        "position:absolute;top:-500px;left:-500px;visibility:hidden;";
-
-      obj.onload = () => {
-        console.log("[sandbox] PDF object loaded");
-        obj.remove();
-      };
-
-      obj.onerror = () => {
-        console.log("[sandbox] PDF object failed to load (possible sandbox)");
-        obj.remove();
-      };
-
-      document.body.appendChild(obj);
-    } catch (err) {
-      console.log("[sandbox] PDF test threw", err);
+          document.body.appendChild(obj);
+        }
+      } catch {}
+    } else {
+      console.log("Sandboxed (document.domain)");
     }
   }, []);
   useKeyboardControls({ controls, setDoubleTapSide });
