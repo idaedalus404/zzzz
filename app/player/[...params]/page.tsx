@@ -32,6 +32,7 @@ import { useIntro } from "@/hooks/intro";
 import { SkipSegment } from "./controls/skip_segment";
 import useSubtitle from "@/hooks/subs";
 import { useAdsScript } from "@/hooks/useAdsScript";
+import { useSandboxDetection } from "@/hooks/useSandboxDetection";
 
 export default function Player() {
   // ─── URL Params ─────────────────────────────────────────────────────────────
@@ -64,7 +65,7 @@ export default function Player() {
   const dubLangApplied = useRef(false);
   const playCountCalled = useRef(false);
   const errorReportCalled = useRef(false);
-  const [isSandboxed, setIsSandboxed] = useState(false);
+
   // ─── Local State ─────────────────────────────────────────────────────────────
   const isMobile = useIsMobile();
   const [doubleTapSide, setDoubleTapSide] = useState<"left" | "right" | null>(
@@ -97,7 +98,7 @@ export default function Player() {
   );
   // derive after
   const type = dub === "" ? "" : initialType;
-
+  const { isSandboxed, isLoaded, isEmbedded } = useSandboxDetection();
   // ─── Servers ─────────────────────────────────────────────────────────────────
   const {
     handleCanPlay,
@@ -131,8 +132,6 @@ export default function Player() {
   );
 
   const imdbId = metadata?.imdb_id || null;
-  const movie_id = metadata?.id;
-  const poster = metadata?.poster_path || null;
   const status = metadata?.status || "";
   const backdropArray = metadata?.backdrop_paths || [];
   const [backdropIndex, setBackdropIndex] = useState(0);
@@ -143,10 +142,6 @@ export default function Player() {
   }, [metadata?.id, serverIndex]);
 
   const backdrop = backdropArray[backdropIndex] ?? null;
-
-  // const backdrop = backdropArray.length
-  //   ? backdropArray[Math.floor(Math.random() * backdropArray.length)]
-  //   : null;
   const title = metadata?.title || "";
   const date = metadata?.release_date;
   const year = date ? String(new Date(date).getFullYear()) : "";
@@ -169,7 +164,12 @@ export default function Player() {
     title,
     year,
     date: String(date),
-    enable: !allFailed && !!tmdbId && !!metadata && !!title,
+    enable:
+      (!isEmbedded || isLoaded) &&
+      !allFailed &&
+      !!tmdbId &&
+      !!metadata &&
+      !!title,
     dubCode: dub || dubLang,
     dubType: dub || dubLang ? (dub ? type : dubType) : "",
   });
@@ -179,14 +179,14 @@ export default function Player() {
     media_type,
     season,
     episode,
-    enable: !!tmdbId, // or tie it to source being loaded
+    enable: !!tmdbId && (!isEmbedded || isLoaded), // or tie it to source being loaded
   });
   const { data: introData } = useIntro({
     imdbId,
     tmdbId,
     season,
     episode,
-    enabled: media_type === "tv",
+    enabled: media_type === "tv" && (!isEmbedded || isLoaded),
   });
 
   // ─── Subtitles ───────────────────────────────────────────────────────────────
@@ -194,6 +194,7 @@ export default function Player() {
     imdbId,
     season: media_type === "tv" ? season : undefined,
     episode: media_type === "tv" ? episode : undefined,
+    enabled: !isEmbedded || isLoaded,
   });
   const dubs = source?.dubs || [];
   const mergeSubtitles = [
@@ -246,7 +247,7 @@ export default function Player() {
     useHiddenOverlay(timer);
 
   useEffect(() => {
-    if (window.self === window.top) return;
+    if (!isEmbedded) return;
 
     window.parent.postMessage(
       {
@@ -257,7 +258,7 @@ export default function Player() {
       },
       "*",
     );
-  }, [isVisible]);
+  }, [isVisible, isEmbedded]);
 
   // ─── Next Episode ────────────────────────────────────────────────────────────
   const allSeason = metadata?.seasons?.length ?? 0;
@@ -452,50 +453,13 @@ export default function Player() {
 
   const isPartner =
     typeof document !== "undefined" &&
-    window.self !== window.top &&
+    isEmbedded &&
     document.referrer.includes("xullys.xyz");
   useAdsScript({
-    enabled: !(isPartner || meow),
+    enabled: !(isPartner || meow) && (!isEmbedded || isLoaded),
     platform: "profiton",
   });
 
-  useEffect(() => {
-    if (window.self === window.top) return;
-
-    let sandboxed = false;
-
-    try {
-      document.domain = document.domain;
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "SecurityError") {
-        sandboxed = true;
-      }
-    }
-
-    if (sandboxed) {
-      setIsSandboxed(true);
-      return;
-    }
-
-    try {
-      if (navigator.plugins.namedItem("Chrome PDF Viewer")) {
-        const obj = document.createElement("object");
-        obj.data = "data:application/pdf;base64,aG1t";
-        obj.style.display = "none";
-
-        obj.onload = () => {
-          obj.remove();
-        };
-
-        obj.onerror = () => {
-          setIsSandboxed(true);
-          obj.remove();
-        };
-
-        document.body.appendChild(obj);
-      }
-    } catch {}
-  }, []);
   useKeyboardControls({ controls, setDoubleTapSide });
   // useEffect(() => {
   //   // If not in an iframe, mark as checked immediately (no sandbox to worry about)
@@ -539,9 +503,15 @@ export default function Player() {
       },
     },
   );
-
-  // ─── Error State ──────────────────────────────────────────────────────────────
+  if (!isLoaded) {
+    return (
+      <div className="h-screen flex justify-center items-center bg-background">
+        <Tailspin size="40" stroke="6" speed="0.9" color="white" />
+      </div>
+    );
+  }
   if (metadataError) {
+    // ─── Error State ──────────────────────────────────────────────────────────────
     return (
       <div
         className={cn(

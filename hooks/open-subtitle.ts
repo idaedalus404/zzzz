@@ -11,12 +11,14 @@ interface UseSubtitlesParams {
   imdbId: string | null;
   season?: number;
   episode?: number;
+  enabled?: boolean;
 }
 
 export function useOpenSubtitle({
   imdbId,
   season,
   episode,
+  enabled,
 }: UseSubtitlesParams) {
   return useQuery<MediaOption[], Error>({
     queryKey: ["libreSubs", imdbId, season, episode],
@@ -59,7 +61,7 @@ export function useOpenSubtitle({
           };
         });
     },
-    enabled: !!imdbId,
+    enabled: !!imdbId && enabled,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
     retry: false,
