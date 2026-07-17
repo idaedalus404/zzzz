@@ -249,7 +249,7 @@ export default function Home() {
   };
   useAdsScript({
     enabled: true,
-    platform: "adsterra",
+    platform: "profiton",
   });
   return (
     <>

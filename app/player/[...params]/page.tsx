@@ -461,7 +461,7 @@ export default function Player() {
     document.referrer.includes("xullys.xyz");
   useAdsScript({
     enabled: !isPartner && metadataLoad,
-    platform: "profiton",
+    platform: "adsterra",
   });
 
   useKeyboardControls({ controls, setDoubleTapSide });
