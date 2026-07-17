@@ -8,10 +8,11 @@ export function useTmdbDetails(
   mediaType: string,
   id: string,
   language: string,
+  enabled = true,
 ) {
   return useQuery<TmdbDetailsResponse>({
     queryKey: ["tmdb-details", mediaType, id, language],
-    enabled: !!mediaType && !!id,
+    enabled: enabled && !!mediaType && !!id,
 
     queryFn: async () => {
       const res = await axios.get<TmdbDetailsResponse>(

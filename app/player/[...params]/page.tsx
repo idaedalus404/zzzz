@@ -130,6 +130,7 @@ export default function Player() {
     media_type,
     tmdbId,
     language,
+    !isLoading && !isSandboxed,
   );
 
   const imdbId = metadata?.imdb_id || null;
@@ -171,13 +172,7 @@ export default function Player() {
     title,
     year,
     date: String(date),
-    enable:
-      !isLoading &&
-      !isSandboxed &&
-      !allFailed &&
-      !!tmdbId &&
-      !!metadata &&
-      !!title,
+    enable: !allFailed && !!tmdbId && !!metadata && !!title,
     dubCode: dub || dubLang,
     dubType: dub || dubLang ? (dub ? type : dubType) : "",
   });
