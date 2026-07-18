@@ -1,187 +1,186 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🟢 Changed code only
+git pull
+npm install
+npm run build
+pm2 restart player
+🟢 Changed .env.local
+npm run build
+pm2 restart player --update-env
+=============================
+🔐 CONNECT TO VPS
+=============================
+
+ssh deploy@45.151.91.13
+
+=============================
+📁 GO TO PROJECT
+=============================
+
+cd ~/apps/player
+
+=============================
+🚀 DEPLOY NEW UPDATE
+=============================
+
+git pull
+npm install
+npm run build
+pm2 restart player --update-env
+
+=============================
+📊 PM2
+=============================
+
+pm2 list # Show running apps
+pm2 logs player # Live logs
+pm2 restart player # Restart app
+pm2 restart player --update-env # Restart + reload .env.local
+pm2 stop player # Stop app
+pm2 start player # Start app
+pm2 delete player # Remove app
+pm2 save # Save process list for reboot
+pm2 monit # Live CPU/RAM monitor
+
+=============================
+🌐 NGINX
+=============================
+
+sudo systemctl status nginx
+sudo systemctl restart nginx
+sudo systemctl reload nginx
+sudo nginx -t
 
-## Getting Started
+=============================
+📈 NETDATA
+=============================
 
-First, run the development server:
+sudo systemctl status netdata
+sudo systemctl restart netdata
+
+=============================
+🖥 SYSTEM
+=============================
+
+htop # Live CPU/RAM
+df -h # Disk usage
+free -h # RAM usage
+uptime # Server uptime/load
+top # Process monitor
+neofetch # System info (if installed)
+
+=============================
+🌍 NETWORK
+=============================
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+curl ipinfo.io
+curl ifconfig.co/json
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ping google.com
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+=============================
+📂 FILES
+=============================
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+ls
+ls -la
+pwd
+cd
+mkdir folder
+rm file
+rm -rf folder
 
-## Learn More
+=============================
+📝 EDIT FILES
+=============================
 
-To learn more about Next.js, take a look at the following resources:
+nano .env.local
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Ctrl + O Save
+Enter
+Ctrl + X Exit
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+=============================
+🔍 VIEW FILE
+=============================
 
-## Deploy on Vercel
+cat .env.local
+less .env.local
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+=============================
+📜 LOGS
+=============================
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+pm2 logs player
 
-# Git Multi-Push Setup
+sudo journalctl -u nginx -f
 
-This project is configured so that **one `git push` updates multiple GitHub repositories**.
+sudo journalctl -u netdata -f
 
-## Current Remotes
+=============================
+🔒 SSH
+=============================
 
-- `origin` → Main repository (also used for multi-push)
-- `z`
-- `a`
-- `embed`
-- `cdn`
+who
+w
 
-Individual pushes still work:
+=============================
+🔄 REBOOT
+=============================
 
-```bash
-git push z
-git push a
-git push embed
-git push cdn
-```
+sudo reboot
 
----
+=============================
+📦 UPDATE SERVER
+=============================
 
-## How Multi-Push Works
+sudo apt update
+sudo apt upgrade -y
 
-Git allows a remote to have **multiple push URLs**.
+=============================
+🔍 CHECK PORTS
+=============================
 
-The important command is:
+sudo ss -tulpn
 
-```bash
-git remote set-url --add --push origin <repository-url>
-```
+=============================
+🌍 TEST WEBSITE
+=============================
 
-Explanation:
+curl -I https://player.zxcstream.xyz
 
-- `set-url` → Modify the remote URL.
-- `--add` → Add another URL instead of replacing the current one.
-- `--push` → Modify the push destination(s), not the fetch URL.
-- `origin` → The remote being configured.
+=============================
+🔥 FIREWALL
+=============================
 
-Because of `--add --push`, every `git push` to `origin` is sent to every configured repository.
+sudo ufw status
+sudo ufw allow 80
+sudo ufw allow 443
+sudo ufw allow 22
 
----
+=============================
+📊 DISK
+=============================
 
-## Current Configuration
+du -sh \*
+df -h
 
-```bash
-git remote set-url --add --push origin https://github.com/j61202287/z.git
+=============================
+💾 BACKUP .ENV
+=============================
 
-git remote set-url --add --push origin https://github.com/zxcprime/a.git
+cp .env.local .env.local.backup
 
-git remote set-url --add --push origin https://github.com/zxcprime-main/embed.git
+=============================
+🧹 DELETE BUILD
+=============================
 
-git remote set-url --add --push origin https://github.com/zxcprime363-sys/cdn.git
+rm -rf .next
 
-git remote set-url --add --push origin https://github.com/daedalus404notfound/fffggg.git
-```
+=============================
+🛠 REBUILD FROM SCRATCH
+=============================
 
----
-
-## Daily Workflow
-
-```bash
-git add .
-git commit -m "Your commit message"
-git push
-```
-
-A single `git push` updates all configured repositories.
-
----
-
-## Push to Only One Repository
-
-```bash
-git push origin
-```
-
-Pushes to **all** configured repositories.
-
-```bash
-git push z
-```
-
-Pushes only to the `z` repository.
-
-```bash
-git push a
-```
-
-Pushes only to the `a` repository.
-
-```bash
-git push embed
-```
-
-Pushes only to the `embed` repository.
-
-```bash
-git push cdn
-```
-
-Pushes only to the `cdn` repository.
-
----
-
-## View the Current Multi-Push Configuration
-
-Show all push URLs:
-
-```bash
-git remote get-url --all --push origin
-```
-
-Or:
-
-```bash
-git config --get-all remote.origin.pushurl
-```
-
----
-
-## Remove a Push URL
-
-```bash
-git remote set-url --delete --push origin <repository-url>
-```
-
-Example:
-
-```bash
-git remote set-url --delete --push origin https://github.com/j61202287/z.git
-```
-
----
-
-## Summary
-
-- `git push` → Pushes to every `pushurl` configured for `origin`.
-- `git push origin` → Also pushes to every configured `pushurl`.
-- `git push z` → Pushes only to `z`.
-- `git push a` → Pushes only to `a`.
-- `git push embed` → Pushes only to `embed`.
-- `git push cdn` → Pushes only to `cdn`.
-
-The feature that makes this work is **multiple push URLs**, configured using:
-
-```bash
-git remote set-url --add --push origin <repository-url>
-```
+rm -rf .next
+npm install
+npm run build
+pm2 restart player --update-env

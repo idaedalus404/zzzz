@@ -519,6 +519,17 @@ export async function GET(req: NextRequest) {
     } //Je@09185134757
     //Test155@zxcstream.xyz's Account
     const proxies = [
+      "https://jolly-forest-d222.icarus058.workers.dev/",
+      "https://fragrant-wind-40f0.icarus059.workers.dev/",
+      "https://late-voice-fd9b.icarus056.workers.dev/",
+      "https://yellow-truth-b7cf.icarus057.workers.dev/",
+      "https://noisy-forest-7108.icarus054.workers.dev/",
+      "https://summer-hat-1d09.icarus055.workers.dev/",
+      "https://icy-frost-2f13.icarus053.workers.dev/",
+      "https://steep-snowflake-50fd.icarus052.workers.dev/",
+      "https://frosty-rain-011e.icarus051.workers.dev/",
+      "https://broken-bird-494d.icarus050.workers.dev/",
+      //
       "https://little-frog-dbca.icarus049.workers.dev/",
       "https://damp-rain-dad6.icarus048.workers.dev/",
       "https://tight-fog-810b.icarus046.workers.dev/",
