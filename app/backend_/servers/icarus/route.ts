@@ -519,16 +519,6 @@ export async function GET(req: NextRequest) {
     } //Je@09185134757
     //Test155@zxcstream.xyz's Account
     const proxies = [
-      "https://jolly-forest-d222.icarus058.workers.dev/",
-      "https://fragrant-wind-40f0.icarus059.workers.dev/",
-      "https://late-voice-fd9b.icarus056.workers.dev/",
-      "https://yellow-truth-b7cf.icarus057.workers.dev/",
-      "https://noisy-forest-7108.icarus054.workers.dev/",
-      "https://summer-hat-1d09.icarus055.workers.dev/",
-      "https://icy-frost-2f13.icarus053.workers.dev/",
-      "https://steep-snowflake-50fd.icarus052.workers.dev/",
-      "https://frosty-rain-011e.icarus051.workers.dev/",
-      "https://broken-bird-494d.icarus050.workers.dev/",
       //
       "https://little-frog-dbca.icarus049.workers.dev/",
       "https://damp-rain-dad6.icarus048.workers.dev/",
@@ -615,6 +605,23 @@ export async function GET(req: NextRequest) {
       "https://orange-paper-a80d.j61202287.workers.dev/",
       "https://still-butterfly-9b3e.zxcprime360.workers.dev/",
       "https://empty-pond-805b.zxcprime363.workers.dev/",
+      //
+      "https://summer-snow-a035.vps7.workers.dev/",
+      "https://wandering-star-4ce0.vps8-cc9.workers.dev/",
+      "https://fragrant-pond-cb40.vps5.workers.dev/",
+      "https://crimson-wind-e271.vps6.workers.dev/",
+      "https://broken-unit-25d8.vps3-705.workers.dev/",
+      "https://silent-queen-3238.vps4-c8e.workers.dev/",
+      "https://dawn-hall-287d.vps1-058.workers.dev/",
+      "https://ancient-lake-48d8.vps2-260.workers.dev/",
+      //
+      "https://jolly-forest-d222.icarus058.workers.dev/",
+      "https://late-voice-fd9b.icarus056.workers.dev/",
+      "https://yellow-truth-b7cf.icarus057.workers.dev/",
+      "https://fragrant-wind-40f0.icarus059.workers.dev/",
+      "https://icy-frost-2f13.icarus053.workers.dev/",
+      "https://long-meadow-047f.vps9-9ce.workers.dev/",
+      "https://cool-bonus-53bc.vps10-af1.workers.dev/",
     ];
     const workingProxy = await getWorkingProxy(sortedDownloads[0].url, proxies);
     if (!workingProxy) {
