@@ -359,9 +359,9 @@ export default function Player() {
 
   useEffect(() => {
     if (trackedRef.current) return;
-    if (isLoading && isSandboxed) return;
+    if (isLoading) return;
     if (window.self === window.top) return;
-
+    if (isSandboxed) return;
     trackedRef.current = true;
 
     let embedder = "unknown";
