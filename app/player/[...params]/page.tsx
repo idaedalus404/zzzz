@@ -552,7 +552,7 @@ export default function Player() {
   if (isLoading) {
     return null;
   }
-  if (restricted && bypassSandbox) {
+  if (restricted && bypassSandbox && isSandboxed) {
     return (
       <div
         className={cn(
