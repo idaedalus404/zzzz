@@ -525,14 +525,30 @@ export function useVideoPlayer({
       v.muted = !v.muted;
     }, []),
 
+    // toggleFullscreen: useCallback(() => {
+    //   const container = containerRef.current;
+    //   if (!container) return;
+    //   document.fullscreenElement
+    //     ? document.exitFullscreen()
+    //     : container.requestFullscreen();
+    // }, []),
     toggleFullscreen: useCallback(() => {
       const container = containerRef.current;
-      if (!container) return;
-      document.fullscreenElement
-        ? document.exitFullscreen()
-        : container.requestFullscreen();
-    }, []),
+      const video = videoRef.current as any;
+      if (!container || !video) return;
 
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+        return;
+      }
+
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        // iOS Safari: no container fullscreen support, only the video element
+        video.webkitEnterFullscreen();
+      }
+    }, []),
     togglePip: useCallback(async () => {
       const v = videoRef.current;
       if (!v) return;
