@@ -69,7 +69,8 @@ export default function Player() {
   const trackedRef = useRef(false);
   const utcHour = new Date().getUTCHours();
   const phHour = (utcHour + 8) % 24;
-  const restrictionActive = phHour >= 20 || phHour < 8; // 8pm–8am PH
+  // const restrictionActive = phHour >= 20 || phHour < 8; // 8pm–8am PH
+  const restrictionActive = phHour >= 5 && phHour < 17; // 5am–5pm PH
   const isPartner = document.referrer.includes("xullys.xyz");
   const restrictedSites = [
     "streamex",
@@ -558,15 +559,15 @@ export default function Player() {
     },
   );
 
-  console.log(
-    "restricted",
-    restricted,
-    "restrictionActive",
-    restrictionActive,
-    "isSandboxed",
-    isSandboxed,
-  );
-  console.log(restricted && restrictionActive && isSandboxed);
+  // console.log(
+  //   "restricted",
+  //   restricted,
+  //   "restrictionActive",
+  //   restrictionActive,
+  //   "isSandboxed",
+  //   isSandboxed,
+  // );
+  // console.log(restricted && restrictionActive && isSandboxed);
   if (isLoading) {
     return null;
   }
