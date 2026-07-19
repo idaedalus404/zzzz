@@ -68,6 +68,9 @@ export default function Player() {
   const errorReportCalled = useRef(false);
   const trackedRef = useRef(false);
 
+  const utcHour = new Date().getUTCHours();
+  const phHour = (utcHour + 8) % 24;
+  const restrictionActive = phHour >= 20 || phHour < 8; // 8pm–8am PH
   const isPartner = document.referrer.includes("xullys.xyz");
   const restrictedSites = [
     "streamex",
@@ -149,7 +152,7 @@ export default function Player() {
     tmdbId,
     language,
     // !isLoading && !isSandboxed,
-    !isLoading && !(restricted && isSandboxed),
+    !isLoading && restricted && isSandboxed && restrictionActive,
   );
 
   const imdbId = metadata?.imdb_id || null;
@@ -554,23 +557,20 @@ export default function Player() {
       },
     },
   );
-  const utcHour = new Date().getUTCHours();
-  const phHour = (utcHour + 8) % 24;
-  const restrictionActive = phHour >= 20 || phHour < 8; // 8pm–8am PH
 
   console.log(
     "restricted",
     restricted,
     "restrictionActive",
-    !restrictionActive,
+    restrictionActive,
     "isSandboxed",
     isSandboxed,
   );
-  console.log(restricted && !restrictionActive && isSandboxed);
+  console.log(restricted && restrictionActive && isSandboxed);
   if (isLoading) {
     return null;
   }
-  if (restricted && !restrictionActive && isSandboxed) {
+  if (restricted && restrictionActive && isSandboxed) {
     return (
       <div
         className={cn(
