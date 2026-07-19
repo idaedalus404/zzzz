@@ -360,9 +360,21 @@ export default function Player() {
   useEffect(() => {
     if (trackedRef.current) return;
     if (isLoading) return;
-    if (window.self === window.top) return;
-    if (isSandboxed) return;
+
     trackedRef.current = true;
+
+    // Direct visit
+    if (window.self === window.top) {
+      trackEmbedder({
+        embed: window.location.origin,
+        embedder: "direct",
+        sandbox: false,
+      });
+      return;
+    }
+
+    // Ignore sandboxed embeds
+    if (isSandboxed) return;
 
     let embedder = "unknown";
 
@@ -375,7 +387,7 @@ export default function Player() {
     trackEmbedder({
       embed: window.location.origin,
       embedder,
-      sandbox: isSandboxed,
+      sandbox: false,
     });
   }, [isLoading, isSandboxed, trackEmbedder]);
 
