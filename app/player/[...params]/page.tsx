@@ -555,21 +555,22 @@ export default function Player() {
     },
   );
   const utcHour = new Date().getUTCHours();
-  const bypassSandbox = utcHour >= 8 && utcHour < 20;
+  const phHour = (utcHour + 8) % 24;
+  const restrictionActive = phHour >= 20 || phHour < 8; // 8pm–8am PH
 
   console.log(
     "restricted",
     restricted,
-    "bypassSandbox",
-    bypassSandbox,
+    "restrictionActive",
+    restrictionActive,
     "isSandboxed",
     isSandboxed,
   );
-  console.log(restricted && bypassSandbox && isSandboxed);
+  console.log(restricted && restrictionActive && isSandboxed);
   if (isLoading) {
     return null;
   }
-  if (restricted && bypassSandbox && isSandboxed) {
+  if (restricted && restrictionActive && isSandboxed) {
     return (
       <div
         className={cn(
