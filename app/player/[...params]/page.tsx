@@ -459,7 +459,6 @@ export default function Player() {
     typeof document !== "undefined" &&
     window.self !== window.top &&
     document.referrer.includes("xullys.xyz");
-
   console.log("partner", !!isPartner);
   useAdsScript({
     enabled: !isPartner && metadataLoad,
