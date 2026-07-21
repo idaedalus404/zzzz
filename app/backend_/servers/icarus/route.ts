@@ -516,13 +516,12 @@ export async function GET(req: NextRequest) {
 
     const links = await Promise.all(
       sortedDownloads.map(async (d: any) => {
-        const encrypted = await encryptUrl(d.url);
         return {
           resolution: d.resolution,
           format: d.format,
           size: d.size,
           type: d.url.includes(".m3u8") ? "hls" : "mp4",
-          link: `https://proxy.zxcstream.xyz/backend_/servers/icarus/proxy?data=${encodeURIComponent(encrypted)}`,
+          link: `https://proxy.zxcstream.xyz/backend_/servers/icarus/proxy?url=${encodeURIComponent(d.url)}`,
         };
       }),
     );
