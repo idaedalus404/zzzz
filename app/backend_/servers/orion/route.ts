@@ -110,6 +110,12 @@ const HOLLY_WORKERS = [
   "https://plain-tooth-a5ef.orion002.workers.dev/",
   "https://lively-rice-79f8.orion004.workers.dev/",
   "https://morning-mountain-b270.orion003.workers.dev/",
+  "https://young-poetry-2f1e.orion005.workers.dev/",
+  "https://broken-fire-37fb.orion006.workers.dev/",
+  "https://wispy-sea-c35e.orion008.workers.dev/",
+  "https://broken-pond-08af.orion007.workers.dev/",
+  "https://dry-rain-6c61.orion0010.workers.dev/",
+  "https://morning-paper-2c32.orion009.workers.dev/",
 ];
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
