@@ -98,47 +98,7 @@ function getRandomAfricanIP() {
   return `${base[0]}.${base[1]}.${rand()}.${rand()}`;
 }
 
-export async function getWorkingProxy(
-  url: string,
-  proxies: string[],
-  origin: string,
-) {
-  const activeProxies = await getActiveProxies(proxies);
-  const shuffledProxies = shuffle(activeProxies);
 
-  if (!shuffledProxies.length) return null;
-  const encrypted = await encryptUrl(url);
-  for (const proxy of shuffledProxies) {
-    const proxyUrl = `${origin}${proxy}?data=${encodeURIComponent(encrypted)}`;
-
-    console.log("Testing:", proxyUrl);
-
-    try {
-      const res = await fetchWithTimeout(
-        proxyUrl,
-        {
-          method: "HEAD",
-          headers: { Range: "bytes=0-1" },
-        },
-        3000,
-      );
-
-      console.log("Status:", res.status);
-
-      if (res.status === 429) {
-        await blacklistProxy(proxy);
-        continue;
-      }
-
-      if (res.ok) {
-        return `${origin}${proxy}`;
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  return null;
-}
 export async function GET(req: NextRequest) {
   const logRequest = (status: number, reason: string) => {
     const tmdbId = req.nextUrl.searchParams.get(FIELD_MAP.id);
@@ -533,24 +493,8 @@ export async function GET(req: NextRequest) {
         );
       }
     } //Je@09185134757
-    //Test155@zxcstream.xyz's Account
-    const proxies = [
-      //
 
-      "/backend_/servers/icarus/proxy",
-    ];
-    const workingProxy = await getWorkingProxy(
-      sortedDownloads[0].url,
-      proxies,
-      origin,
-    );
-    if (!workingProxy) {
-      logRequest(502, "no working proxy");
-      return NextResponse.json(
-        { success: false, error: "No working proxy available" },
-        { status: 502 },
-      );
-    }
+  
 
     if (!cachedDownloads) {
       await supabase.from("moviebox_downloads_cache").upsert(
@@ -581,7 +525,7 @@ export async function GET(req: NextRequest) {
           format: d.format,
           size: d.size,
           type: d.url.includes(".m3u8") ? "hls" : "mp4",
-          link: `${workingProxy}?data=${encodeURIComponent(encrypted)}`,
+          link: `/backend_/servers/icarus/proxy?data=${encodeURIComponent(encrypted)}`,
         };
       }),
     );
